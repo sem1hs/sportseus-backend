@@ -1,3 +1,29 @@
 spring:
   application:
     name: sportseus
+  profiles:
+    active: ${PROFILES_ACTIVE:dev}
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+  endpoint:
+    health:
+      show-details: never
+
+server:
+  port: ${PORT}
+  servlet:
+    context-path: ${CONTEXT_PATH}
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration: 900000 # 1000 * 60 * 15 - 15 Dakika
+  refresh-token-expiration: 604800000 # 1000 * 60 * 60 * 24 * 7 - 1 Hafta

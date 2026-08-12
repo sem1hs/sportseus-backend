@@ -1,21 +1,18 @@
 spring:
-  datasource:
-    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE;INIT=CREATE SCHEMA IF NOT EXISTS auth
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-
   jpa:
     hibernate:
-      ddl-auto: create-drop
-
+      ddl-auto: validate      # Şemayı Flyway kurar; Hibernate sadece doğrular (drift'i yakalar)
     properties:
       hibernate:
         format_sql: true
-        hbm2ddl:
-          create_namespaces: true
+    open-in-view: false        # Prod'da da kapalı tutacağız; testte de kapalı olsun
 
-gemini:
-  project-id: test-project
-  location: us-central1
-  model: gemini-2.5-flash
+  flyway:
+    enabled: true
+    schemas: public, auth
+    default-schema: public
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.flywaydb: info
