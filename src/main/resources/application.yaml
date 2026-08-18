@@ -23,6 +23,10 @@ server:
   servlet:
     context-path: ${CONTEXT_PATH}
 
+football:
+  base-url: https://v3.football.api-sports.io
+  api-key: ${API_FOOTBALL_KEY}
+
 jwt:
   secret: ${JWT_SECRET}
   access-token-expiration: 900000 # 1000 * 60 * 15 - 15 Dakika

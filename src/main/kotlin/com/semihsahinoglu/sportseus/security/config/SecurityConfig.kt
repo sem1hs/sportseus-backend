@@ -7,6 +7,7 @@ import com.semihsahinoglu.sportseus.security.filter.JwtAuthFilter
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
@@ -48,7 +49,7 @@ class SecurityConfig(
             .authorizeHttpRequests {
                 it.requestMatchers("/auth/login", "/auth/signup", "/auth/refresh-token").permitAll()
                 it.requestMatchers("/actuator/**", "/error/**").permitAll()
-
+                it.requestMatchers(HttpMethod.GET, "/leagues/**").permitAll()
                 it.requestMatchers("/admin/**").hasRole("ADMIN")
                 it.anyRequest().authenticated()
             }
