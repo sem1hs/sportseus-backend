@@ -5,6 +5,11 @@ import com.semihsahinoglu.sportseus.auth.exception.InvalidRefreshTokenException
 import com.semihsahinoglu.sportseus.auth.exception.RefreshTokenDoesntBelongUserException
 import com.semihsahinoglu.sportseus.auth.exception.RefreshTokenNotFoundException
 import com.semihsahinoglu.sportseus.common.dto.ApiResponse
+import com.semihsahinoglu.sportseus.league.exception.LeagueAlreadyExistsException
+import com.semihsahinoglu.sportseus.league.exception.LeagueNotFoundException
+import com.semihsahinoglu.sportseus.league.exception.LeagueNotFoundInApiException
+import com.semihsahinoglu.sportseus.team.exception.TeamNotFoundException
+import com.semihsahinoglu.sportseus.team.exception.TeamStatisticsNotFoundException
 import com.semihsahinoglu.sportseus.user.exception.UserAlreadyExistException
 import com.semihsahinoglu.sportseus.user.exception.UserNotFoundException
 import io.jsonwebtoken.ExpiredJwtException
@@ -144,4 +149,69 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
             ex.message,
             request.requestURI,
         )
+
+    @ExceptionHandler(LeagueAlreadyExistsException::class)
+    fun handleLeagueAlreadyExistsException(
+        ex: LeagueAlreadyExistsException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.BAD_REQUEST,
+            "League Already Exist",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(LeagueNotFoundException::class)
+    fun handleLeagueNotFoundException(
+        ex: LeagueNotFoundException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.NOT_FOUND,
+            "League Not Found",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(LeagueNotFoundInApiException::class)
+    fun handleLeagueNotFoundInApiException(
+        ex: LeagueNotFoundInApiException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.NOT_FOUND,
+            "League Not Found in API",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(TeamNotFoundException::class)
+    fun handleTeamNotFoundException(
+        ex: TeamNotFoundException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.NOT_FOUND,
+            "Team Not Found",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(TeamStatisticsNotFoundException::class)
+    fun handleTeamStatisticsNotFoundException(
+        ex: TeamStatisticsNotFoundException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.NOT_FOUND,
+            "Team Statistics Not Found",
+            ex.message,
+            request.requestURI
+        )
+    }
 }

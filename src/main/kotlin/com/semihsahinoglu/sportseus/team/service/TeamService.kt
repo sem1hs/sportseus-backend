@@ -6,6 +6,7 @@ import com.semihsahinoglu.sportseus.team.client.TeamApiClient
 import com.semihsahinoglu.sportseus.team.dto.TeamApiItem
 import com.semihsahinoglu.sportseus.team.dto.TeamResponse
 import com.semihsahinoglu.sportseus.team.entity.LeagueTeam
+import com.semihsahinoglu.sportseus.team.entity.Team
 import com.semihsahinoglu.sportseus.team.entity.Venue
 import com.semihsahinoglu.sportseus.team.exception.TeamNotFoundException
 import com.semihsahinoglu.sportseus.team.mapper.TeamMapper
@@ -65,6 +66,10 @@ class TeamService(
     @Transactional(readOnly = true)
     fun getTeamsByLeague(leagueId: UUID, season: Int): List<TeamResponse> =
         leagueTeamRepository.findTeamsByLeagueIdAndSeason(leagueId, season).map(teamMapper::toResponse)
+
+    // METHOD: externalId'den find
+    fun findByExternalId(externalId: Int): Team =
+        teamRepository.findByExternalId(externalId) ?: throw TeamNotFoundException("Takım bulunamadı: $externalId")
 
     // Ortak upsert: venue → team → league_teams (sırayla)
     private fun upsertTeamWithLeague(item: TeamApiItem, leagueId: UUID, season: Int): TeamResponse {
