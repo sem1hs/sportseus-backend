@@ -28,6 +28,14 @@ class LeagueService(
         return leagueMapper.toResponse(league)
     }
 
+    // METHOD: tek lig, entity dönen
+    fun getByExternalIdAndSeasonEntity(externalId: Int, season: Int): League =
+        leagueRepository.findByExternalIdAndSeason(externalId, season)
+            ?: throw LeagueNotFoundException("Lig bulunamadı: $externalId ($season)")
+
+    // METHOD: referans dönen
+    fun getReferenceById(leagueId: UUID): League = leagueRepository.getReferenceById(leagueId)
+
     // PUBLIC: sezondaki tüm ligler (sadece DB)
     @Transactional(readOnly = true)
     fun getAllBySeason(season: Int): List<LeagueResponse> {

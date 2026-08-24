@@ -4,11 +4,13 @@ import com.semihsahinoglu.sportseus.football.exception.FootballApiRateLimitExcep
 import com.semihsahinoglu.sportseus.league.dto.LeagueApiEnvelope
 import com.semihsahinoglu.sportseus.league.dto.LeagueApiItem
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
 
 @Component
 class LeagueApiClient(
+    @Qualifier("footballRestClient")
     private val footballRestClient: RestClient,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)

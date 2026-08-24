@@ -50,6 +50,7 @@ class SecurityConfig(
                 it.requestMatchers("/auth/login", "/auth/signup", "/auth/refresh-token").permitAll()
                 it.requestMatchers("/actuator/**", "/error/**").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/leagues/**").permitAll()
+                it.requestMatchers(HttpMethod.GET, "/teams/**").permitAll()
                 it.requestMatchers("/admin/**").hasRole("ADMIN")
                 it.anyRequest().authenticated()
             }
