@@ -71,6 +71,10 @@ class TeamService(
     fun findByExternalId(externalId: Int): Team =
         teamRepository.findByExternalId(externalId) ?: throw TeamNotFoundException("Takım bulunamadı: $externalId")
 
+    // METHOD: externalId'den find optional
+    fun findByExternalIdOptional(externalId: Int): Team? =
+        teamRepository.findByExternalId(externalId)
+
     // Ortak upsert: venue → team → league_teams (sırayla)
     private fun upsertTeamWithLeague(item: TeamApiItem, leagueId: UUID, season: Int): TeamResponse {
 

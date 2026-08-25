@@ -1,0 +1,1 @@
+ALTER TABLE league.league RENAME TO leagues;

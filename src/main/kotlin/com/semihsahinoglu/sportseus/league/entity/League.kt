@@ -9,7 +9,7 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.Table
 
 @Entity
-@Table(schema = "league", name = "league")
+@Table(schema = "league", name = "leagues")
 class League(
 
     @Column(nullable = false)

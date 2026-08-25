@@ -33,6 +33,11 @@ class LeagueService(
         leagueRepository.findByExternalIdAndSeason(externalId, season)
             ?: throw LeagueNotFoundException("Lig bulunamadı: $externalId ($season)")
 
+    // METHOD: tek lig, entity dönen, hata fırlatmaz
+    @Transactional(readOnly = true)
+    fun findByExternalIdAndSeasonEntity(externalId: Int, season: Int): League? =
+        leagueRepository.findByExternalIdAndSeason(externalId, season)
+
     // METHOD: referans dönen
     fun getReferenceById(leagueId: UUID): League = leagueRepository.getReferenceById(leagueId)
 

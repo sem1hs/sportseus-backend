@@ -8,6 +8,9 @@ import com.semihsahinoglu.sportseus.common.dto.ApiResponse
 import com.semihsahinoglu.sportseus.league.exception.LeagueAlreadyExistsException
 import com.semihsahinoglu.sportseus.league.exception.LeagueNotFoundException
 import com.semihsahinoglu.sportseus.league.exception.LeagueNotFoundInApiException
+import com.semihsahinoglu.sportseus.player.exception.MissingReferencesException
+import com.semihsahinoglu.sportseus.player.exception.PlayerNotFoundException
+import com.semihsahinoglu.sportseus.player.exception.PlayerStatisticsNotFoundException
 import com.semihsahinoglu.sportseus.team.exception.TeamNotFoundException
 import com.semihsahinoglu.sportseus.team.exception.TeamStatisticsNotFoundException
 import com.semihsahinoglu.sportseus.user.exception.UserAlreadyExistException
@@ -210,6 +213,45 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         return ErrorResponse.buildErrorResponse(
             HttpStatus.NOT_FOUND,
             "Team Statistics Not Found",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(PlayerNotFoundException::class)
+    fun handlePlayerNotFoundException(
+        ex: PlayerNotFoundException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.NOT_FOUND,
+            "Player Not Found",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(PlayerStatisticsNotFoundException::class)
+    fun handlePlayerStatisticsNotFoundException(
+        ex: PlayerStatisticsNotFoundException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.NOT_FOUND,
+            "Player Statistics Not Found",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(MissingReferencesException::class)
+    fun MissingReferencesException(
+        ex: MissingReferencesException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.BAD_REQUEST,
+            "Missing References",
             ex.message,
             request.requestURI
         )
