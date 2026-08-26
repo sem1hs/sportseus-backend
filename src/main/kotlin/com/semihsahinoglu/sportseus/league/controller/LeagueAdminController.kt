@@ -32,6 +32,14 @@ class LeagueAdminController(
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
 
+    // Takıma göre lig ekleme
+    @PostMapping("/by-team")
+    fun importLeagueByTeam(@RequestParam teamId: Int): ResponseEntity<ApiResponse<List<LeagueResponse>>> {
+        val leagues = leagueService.syncLeaguesByTeam(teamId)
+        val response = ApiResponse.success(leagues)
+        return ResponseEntity.status(HttpStatus.CREATED).body(response)
+    }
+
     // Elle partial güncelleme
     @PatchMapping("/{id}")
     fun updateLeague(

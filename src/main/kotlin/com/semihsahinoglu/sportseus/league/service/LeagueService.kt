@@ -1,6 +1,8 @@
 package com.semihsahinoglu.sportseus.league.service
 
 import com.semihsahinoglu.sportseus.league.client.LeagueApiClient
+import com.semihsahinoglu.sportseus.league.dto.CountryNode
+import com.semihsahinoglu.sportseus.league.dto.LeagueNode
 import com.semihsahinoglu.sportseus.league.dto.LeagueResponse
 import com.semihsahinoglu.sportseus.league.dto.LeagueUpdateRequest
 import com.semihsahinoglu.sportseus.league.entity.League
@@ -72,10 +74,35 @@ class LeagueService(
         return leagueMapper.toResponse(saved)
     }
 
+    // ADMIN: takıma göre lig çekme
+    @Transactional
+    fun syncLeaguesByTeam(teamExternalId: Int): List<LeagueResponse> {
+        val items = leagueApiClient.fetchLeaguesByTeam(teamExternalId)
+
+        return items.flatMap { item ->
+            val leagueNode = item.league ?: return@flatMap emptyList()
+            item.seasons
+                .mapNotNull { it.year }
+                .map { season -> upsertLeague(leagueNode, item.country, season) }
+        }
+    }
+
     // ADMIN: hard delete
     @Transactional
     fun deleteLeague(id: UUID) {
         if (!leagueRepository.existsById(id)) throw LeagueNotFoundException("Lig bulunamadı: $id")
         leagueRepository.deleteById(id)
+    }
+
+    // METHOD: varsa güncelle, yoksa oluştur (importLeague'in fırlatmayan kardeşi)
+    private fun upsertLeague(league: LeagueNode, country: CountryNode?, season: Int): LeagueResponse {
+        val existing = leagueRepository.findByExternalIdAndSeason(league.id, season)
+        val saved = if (existing != null) {
+            leagueMapper.applyApiData(existing, league, country)
+            leagueRepository.save(existing)
+        } else {
+            leagueRepository.save(leagueMapper.toEntity(league, country, season))
+        }
+        return leagueMapper.toResponse(saved)
     }
 }

@@ -28,11 +28,11 @@ class League(
     @Column(nullable = false)
     var countryName: String,
 
-    @Column(nullable = false)
-    var countryCode: String,
+    @Column(nullable = true)
+    var countryCode: String?,
 
-    @Column(nullable = false)
-    var countryFlag: String,
+    @Column(nullable = true)
+    var countryFlag: String?,
 
     @Column(nullable = false)
     var season: Int
