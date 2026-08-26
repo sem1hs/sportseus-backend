@@ -11,8 +11,11 @@ import com.semihsahinoglu.sportseus.league.exception.LeagueNotFoundInApiExceptio
 import com.semihsahinoglu.sportseus.player.exception.MissingReferencesException
 import com.semihsahinoglu.sportseus.player.exception.PlayerNotFoundException
 import com.semihsahinoglu.sportseus.player.exception.PlayerStatisticsNotFoundException
+import com.semihsahinoglu.sportseus.player.exception.PlayerTeamNotFoundException
 import com.semihsahinoglu.sportseus.team.exception.TeamNotFoundException
 import com.semihsahinoglu.sportseus.team.exception.TeamStatisticsNotFoundException
+import com.semihsahinoglu.sportseus.transfer.exception.TransferConflictException
+import com.semihsahinoglu.sportseus.transfer.exception.TransferNotFoundException
 import com.semihsahinoglu.sportseus.user.exception.UserAlreadyExistException
 import com.semihsahinoglu.sportseus.user.exception.UserNotFoundException
 import io.jsonwebtoken.ExpiredJwtException
@@ -252,6 +255,45 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         return ErrorResponse.buildErrorResponse(
             HttpStatus.BAD_REQUEST,
             "Missing References",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(PlayerTeamNotFoundException::class)
+    fun handlePlayerTeamNotFoundException(
+        ex: PlayerTeamNotFoundException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.NOT_FOUND,
+            "Player Team Not Found",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(TransferNotFoundException::class)
+    fun handleTransferNotFoundException(
+        ex: TransferNotFoundException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.NOT_FOUND,
+            "Transfer Not Found",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(TransferConflictException::class)
+    fun handleTransferConflictException(
+        ex: TransferConflictException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.CONFLICT,
+            "Transfer Conflict",
             ex.message,
             request.requestURI
         )

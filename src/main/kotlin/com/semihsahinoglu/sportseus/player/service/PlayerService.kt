@@ -50,6 +50,14 @@ class PlayerService(
     fun getByExternalIdOrThrow(playerExternalId: Long): Player = playerRepository.findByExternalId(playerExternalId)
         ?: throw PlayerNotFoundException("Oyuncu DB'de yok, önce profil sync çalıştırın: player=$playerExternalId")
 
+    // ADMIN: player silme
+    @Transactional
+    fun deleteByExternalId(playerExternalId: Long) {
+        val player = playerRepository.findByExternalId(playerExternalId)
+            ?: throw PlayerNotFoundException("Oyuncu bulunamadı: player=$playerExternalId")
+        playerRepository.delete(player)      // DB cascade → PlayerTeam + PlayerStatistics otomatik silinir
+    }
+
     // PUBLIC: public okuma
     @Transactional(readOnly = true)
     fun getByExternalId(playerExternalId: Long): PlayerResponse =

@@ -5,6 +5,7 @@ import com.semihsahinoglu.sportseus.player.dto.PlayerTeamTeamSummary
 import com.semihsahinoglu.sportseus.player.dto.SquadResponse
 import com.semihsahinoglu.sportseus.player.entity.Player
 import com.semihsahinoglu.sportseus.player.entity.PlayerTeam
+import com.semihsahinoglu.sportseus.player.exception.PlayerTeamNotFoundException
 import com.semihsahinoglu.sportseus.player.mapper.PlayerTeamMapper
 import com.semihsahinoglu.sportseus.player.mapper.SquadMapper
 import com.semihsahinoglu.sportseus.player.repository.PlayerTeamRepository
@@ -13,6 +14,7 @@ import com.semihsahinoglu.sportseus.team.exception.TeamNotFoundException
 import com.semihsahinoglu.sportseus.team.service.TeamService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
 @Service
 class PlayerTeamService(
@@ -51,6 +53,13 @@ class PlayerTeamService(
         return playerTeamRepository.save(entity)
     }
 
+    // ADMIN: player team siler
+    @Transactional
+    fun deleteById(id: UUID) {
+        if (!playerTeamRepository.existsById(id)) throw PlayerTeamNotFoundException("Üyelik bulunamadı: id=$id")
+        playerTeamRepository.deleteById(id)
+    }
+
     // METHOD: takım listesi döner
     @Transactional(readOnly = true)
     fun getSquad(team: Team, season: Int): SquadResponse {
@@ -58,6 +67,7 @@ class PlayerTeamService(
         return squadMapper.toResponse(team, season, memberships)
     }
 
+    // PUBLIC: takım listesi döner
     @Transactional(readOnly = true)
     fun getSquadByTeamExternalId(teamExternalId: Long, season: Int): SquadResponse {
         val team = teamService.findByExternalIdOptional(teamExternalId.toInt())

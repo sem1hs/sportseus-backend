@@ -52,6 +52,7 @@ class SecurityConfig(
                 it.requestMatchers(HttpMethod.GET, "/leagues/**").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/teams/**").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/players/**").permitAll()
+                it.requestMatchers(HttpMethod.GET, "/transfers/**").permitAll()
                 it.requestMatchers("/admin/**").hasRole("ADMIN")
                 it.anyRequest().authenticated()
             }

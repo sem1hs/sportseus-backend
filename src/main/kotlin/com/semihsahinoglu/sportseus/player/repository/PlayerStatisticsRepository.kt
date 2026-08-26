@@ -1,6 +1,7 @@
 package com.semihsahinoglu.sportseus.player.repository
 
 import com.semihsahinoglu.sportseus.player.entity.PlayerStatistics
+import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.UUID
 
@@ -20,5 +21,6 @@ interface PlayerStatisticsRepository : JpaRepository<PlayerStatistics, UUID> {
     // Bir oyuncunun tüm istatistikleri
     fun findAllByPlayerId(playerId: UUID): List<PlayerStatistics>
 
+    @EntityGraph(attributePaths = ["team", "league"])
     fun findAllByPlayerExternalIdAndSeason(playerExternalId: Long, season: Int): List<PlayerStatistics>
 }
