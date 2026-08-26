@@ -31,6 +31,29 @@ repositories {
 
 val mockitoAgent = configurations.create("mockitoAgent")
 
+val envFile = file(".env.dev")
+if (envFile.exists()) {
+    envFile.readLines().forEach { line ->
+        val trimmed = line.trim()
+        if (trimmed.isNotEmpty() && !trimmed.startsWith("#") && trimmed.contains("=")) {
+            val key = trimmed.substringBefore("=").trim()
+            val value = trimmed.substringAfter("=").trim()
+            System.setProperty(key, value)
+        }
+    }
+}
+
+// --- FLYWAY KONFİGÜRASYONU ---
+flyway {
+    url = System.getProperty("FLYWAY_DB") ?: ""
+    user = System.getProperty("FLYWAY_USER") ?: ""
+    password = System.getProperty("FLYWAY_PASSWORD") ?: ""
+    locations = arrayOf("filesystem:src/main/resources/db/migration")
+    defaultSchema = "public"
+    validateOnMigrate = true
+    cleanDisabled = true
+}
+
 dependencies {
     // --- Web / REST ---
     implementation("org.springframework.boot:spring-boot-starter-web")
