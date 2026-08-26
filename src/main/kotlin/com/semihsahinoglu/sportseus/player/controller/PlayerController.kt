@@ -53,10 +53,10 @@ class PlayerController(
     // Kadro — GET /players/squads?team={teamExternalId}&season=2024
     @GetMapping("/squads")
     fun getSquad(
-        @RequestParam team: Long,
+        @RequestParam teamId: Long,
         @RequestParam season: Int
     ): ResponseEntity<ApiResponse<SquadResponse>> {
-        val squad = playerTeamService.getSquadByTeamExternalId(team, season)
+        val squad = playerTeamService.getSquadByTeamExternalId(teamId, season)
         val response = ApiResponse.success(squad)
         return ResponseEntity.ok(response)
     }

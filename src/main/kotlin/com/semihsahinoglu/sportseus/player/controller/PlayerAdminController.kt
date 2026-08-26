@@ -41,13 +41,13 @@ class PlayerAdminController(
         return ResponseEntity.ok(response)
     }
 
-    // 3) Kadro sync — POST /admin/players/squads/sync?team=998&season=2024
+    // 3) Kadro sync — POST /admin/players/squads/sync?teamId=998&season=2024
     @PostMapping("/squads/sync")
     fun syncSquad(
-        @RequestParam team: Long,
+        @RequestParam teamId: Long,
         @RequestParam season: Int
     ): ResponseEntity<ApiResponse<SquadResponse>> {
-        val playerSquad = playerFacade.syncSquad(team, season)
+        val playerSquad = playerFacade.syncSquad(teamId, season)
         val response = ApiResponse.success(playerSquad)
         return ResponseEntity.ok(response)
     }
