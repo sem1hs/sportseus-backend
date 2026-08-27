@@ -1,4 +1,4 @@
-package com.semihsahinoglu.sportseus.team.entity
+package com.semihsahinoglu.sportseus.venue.entity
 
 import com.semihsahinoglu.sportseus.common.entity.Auditable
 import jakarta.persistence.Column
@@ -6,7 +6,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Table
 
 @Entity
-@Table(schema = "team", name = "venues")
+@Table(schema = "venue", name = "venues")
 class Venue(
     @Column(name = "external_id", nullable = false)
     var externalId: Int,
@@ -20,6 +20,9 @@ class Venue(
     @Column(length = 100)
     var city: String? = null,
 
+    @Column(length = 100)
+    var country: String? = null,
+
     var capacity: Int? = null,
 
     @Column(length = 50)
@@ -32,6 +35,7 @@ class Venue(
         this.name = other.name
         this.address = other.address
         this.city = other.city
+        this.country = other.country
         this.capacity = other.capacity
         this.surface = other.surface
         this.imageUrl = other.imageUrl

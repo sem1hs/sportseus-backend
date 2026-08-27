@@ -5,6 +5,8 @@ import com.semihsahinoglu.sportseus.auth.exception.InvalidRefreshTokenException
 import com.semihsahinoglu.sportseus.auth.exception.RefreshTokenDoesntBelongUserException
 import com.semihsahinoglu.sportseus.auth.exception.RefreshTokenNotFoundException
 import com.semihsahinoglu.sportseus.common.dto.ApiResponse
+import com.semihsahinoglu.sportseus.fixture.exception.FixtureMissingReferencesException
+import com.semihsahinoglu.sportseus.fixture.exception.FixtureNotFoundException
 import com.semihsahinoglu.sportseus.league.exception.LeagueAlreadyExistsException
 import com.semihsahinoglu.sportseus.league.exception.LeagueNotFoundException
 import com.semihsahinoglu.sportseus.league.exception.LeagueNotFoundInApiException
@@ -18,6 +20,7 @@ import com.semihsahinoglu.sportseus.transfer.exception.TransferConflictException
 import com.semihsahinoglu.sportseus.transfer.exception.TransferNotFoundException
 import com.semihsahinoglu.sportseus.user.exception.UserAlreadyExistException
 import com.semihsahinoglu.sportseus.user.exception.UserNotFoundException
+import com.semihsahinoglu.sportseus.venue.exception.VenueNotFoundException
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.JwtException
 import jakarta.servlet.http.HttpServletRequest
@@ -294,6 +297,45 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         return ErrorResponse.buildErrorResponse(
             HttpStatus.CONFLICT,
             "Transfer Conflict",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(VenueNotFoundException::class)
+    fun handleVenueNotFoundException(
+        ex: VenueNotFoundException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.NOT_FOUND,
+            "Venue Not Found",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(FixtureNotFoundException::class)
+    fun handleFixtureNotFoundException(
+        ex: FixtureNotFoundException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.NOT_FOUND,
+            "Fixture Not Found",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(FixtureMissingReferencesException::class)
+    fun handleFixtureMissingReferencesException(
+        ex: FixtureMissingReferencesException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.BAD_REQUEST,
+            "Missing References",
             ex.message,
             request.requestURI
         )

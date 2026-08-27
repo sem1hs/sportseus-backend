@@ -3,7 +3,8 @@ package com.semihsahinoglu.sportseus.team.mapper
 import com.semihsahinoglu.sportseus.team.dto.TeamNode
 import com.semihsahinoglu.sportseus.team.dto.TeamResponse
 import com.semihsahinoglu.sportseus.team.entity.Team
-import com.semihsahinoglu.sportseus.team.entity.Venue
+import com.semihsahinoglu.sportseus.venue.entity.Venue
+import com.semihsahinoglu.sportseus.venue.mapper.VenueMapper
 import org.springframework.stereotype.Component
 
 @Component

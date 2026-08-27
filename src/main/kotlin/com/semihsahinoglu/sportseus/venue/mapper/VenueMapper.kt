@@ -1,8 +1,9 @@
-package com.semihsahinoglu.sportseus.team.mapper
+package com.semihsahinoglu.sportseus.venue.mapper
 
-import com.semihsahinoglu.sportseus.team.dto.VenueNode
-import com.semihsahinoglu.sportseus.team.dto.VenueResponse
-import com.semihsahinoglu.sportseus.team.entity.Venue
+import com.semihsahinoglu.sportseus.venue.dto.VenueApiItem
+import com.semihsahinoglu.sportseus.venue.dto.VenueNode
+import com.semihsahinoglu.sportseus.venue.dto.VenueResponse
+import com.semihsahinoglu.sportseus.venue.entity.Venue
 import org.springframework.stereotype.Component
 
 @Component
@@ -21,6 +22,28 @@ class VenueMapper {
         )
     }
 
+    fun toEntity(item: VenueApiItem): Venue =
+        Venue(
+            externalId = requireNotNull(item.id) { "Venue id null olamaz" },
+            name = item.name,
+            address = item.address,
+            city = item.city,
+            country = item.country,
+            capacity = item.capacity,
+            surface = item.surface,
+            imageUrl = item.image,
+        )
+
+    fun applyApiData(target: Venue, item: VenueApiItem) {
+        target.name = item.name
+        target.address = item.address
+        target.city = item.city
+        target.country = item.country
+        target.capacity = item.capacity
+        target.surface = item.surface
+        target.imageUrl = item.image
+    }
+
     fun applyApiData(target: Venue, node: VenueNode) {
         target.name = node.name
         target.address = node.address
@@ -37,6 +60,7 @@ class VenueMapper {
             name = venue.name,
             address = venue.address,
             city = venue.city,
+            country = venue.country,
             capacity = venue.capacity,
             surface = venue.surface,
             imageUrl = venue.imageUrl,

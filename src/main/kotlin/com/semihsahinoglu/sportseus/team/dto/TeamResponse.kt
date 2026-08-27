@@ -1,5 +1,6 @@
 package com.semihsahinoglu.sportseus.team.dto
 
+import com.semihsahinoglu.sportseus.venue.dto.VenueResponse
 import java.util.UUID
 
 data class TeamResponse(

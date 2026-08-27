@@ -1,0 +1,1 @@
+ALTER TABLE venue.venues ADD COLUMN country VARCHAR(100)

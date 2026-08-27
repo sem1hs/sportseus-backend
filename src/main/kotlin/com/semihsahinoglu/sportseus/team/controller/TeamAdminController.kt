@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -39,6 +40,17 @@ class TeamAdminController(
         val singleTeam = teamService.syncSingleTeam(externalId, league, season)
         val response = ApiResponse.success(singleTeam)
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
+    }
+
+    // ADMIN: takıma venue bağla — PUT /api/admin/teams/{teamExternalId}/venue/{venueExternalId}
+    @PutMapping("/{teamExternalId}/venue/{venueExternalId}")
+    fun updateVenue(
+        @PathVariable teamExternalId: Int,
+        @PathVariable venueExternalId: Int,
+    ): ResponseEntity<ApiResponse<TeamResponse>> {
+        val team = teamService.updateTeamVenue(teamExternalId, venueExternalId)
+        val response = ApiResponse.success(team)
+        return ResponseEntity.ok(response)
     }
 
     // Hard delete

@@ -1,6 +1,7 @@
 package com.semihsahinoglu.sportseus.team.entity
 
 import com.semihsahinoglu.sportseus.common.entity.Auditable
+import com.semihsahinoglu.sportseus.venue.entity.Venue
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -35,4 +36,8 @@ class Team(
     @JoinColumn(name = "venue_id")   // nullable — milli takım/venue'siz takım
     var venue: Venue? = null,
 
-    ) : Auditable()
+    ) : Auditable() {
+    fun applyVenue(venue: Venue) {
+        this.venue = venue
+    }
+}

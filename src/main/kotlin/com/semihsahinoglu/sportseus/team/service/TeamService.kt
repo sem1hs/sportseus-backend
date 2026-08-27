@@ -1,19 +1,17 @@
 package com.semihsahinoglu.sportseus.team.service
 
-import com.semihsahinoglu.sportseus.league.exception.LeagueNotFoundException
 import com.semihsahinoglu.sportseus.league.service.LeagueService
 import com.semihsahinoglu.sportseus.team.client.TeamApiClient
 import com.semihsahinoglu.sportseus.team.dto.TeamApiItem
 import com.semihsahinoglu.sportseus.team.dto.TeamResponse
 import com.semihsahinoglu.sportseus.team.entity.LeagueTeam
 import com.semihsahinoglu.sportseus.team.entity.Team
-import com.semihsahinoglu.sportseus.team.entity.Venue
+import com.semihsahinoglu.sportseus.venue.entity.Venue
 import com.semihsahinoglu.sportseus.team.exception.TeamNotFoundException
 import com.semihsahinoglu.sportseus.team.mapper.TeamMapper
-import com.semihsahinoglu.sportseus.team.mapper.VenueMapper
 import com.semihsahinoglu.sportseus.team.repository.LeagueTeamRepository
 import com.semihsahinoglu.sportseus.team.repository.TeamRepository
-import com.semihsahinoglu.sportseus.team.repository.VenueRepository
+import com.semihsahinoglu.sportseus.venue.service.VenueService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -22,11 +20,10 @@ import java.util.UUID
 class TeamService(
     private val teamApiClient: TeamApiClient,
     private val teamRepository: TeamRepository,
-    private val venueRepository: VenueRepository,
+    private val venueService: VenueService,
     private val leagueTeamRepository: LeagueTeamRepository,
     private val leagueService: LeagueService,
     private val teamMapper: TeamMapper,
-    private val venueMapper: VenueMapper,
 ) {
     // ADMIN: ligin tüm takımlarını senkronla
     @Transactional
@@ -79,17 +76,7 @@ class TeamService(
     private fun upsertTeamWithLeague(item: TeamApiItem, leagueId: UUID, season: Int): TeamResponse {
 
         // a. VENUE upsert (venue.id null ise venue'siz devam)
-        val venue: Venue? = item.venue?.let { venueNode ->
-            venueMapper.toEntity(venueNode)?.let { mapped ->
-                val existing = venueRepository.findByExternalId(mapped.externalId)
-                if (existing != null) {
-                    venueMapper.applyApiData(existing, venueNode)
-                    venueRepository.save(existing)
-                } else {
-                    venueRepository.save(mapped)
-                }
-            }
-        }
+        val venue: Venue? = venueService.upsertVenue(item)
 
         // b. TEAM upsert
         val existingTeam = teamRepository.findByExternalId(item.team.id)
@@ -108,5 +95,20 @@ class TeamService(
         }
 
         return teamMapper.toResponse(team)
+    }
+
+    // ADMIN: takıma elle venue bağla/güncelle (fixture'da venue null gelince)
+    @Transactional
+    fun updateTeamVenue(teamExternalId: Int, venueExternalId: Int): TeamResponse {
+        val team = teamRepository.findByExternalId(teamExternalId)
+            ?: throw TeamNotFoundException("Takım bulunamadı: $teamExternalId")
+
+        // venue DB'de olmalı — yoksa katı hata (önce venue sync et)
+        val venue = venueService.getByExternalIdOrThrow(venueExternalId)
+
+        team.applyVenue(venue)
+        val saved = teamRepository.save(team)
+
+        return teamMapper.toResponse(saved)
     }
 }

@@ -1,4 +1,4 @@
-package com.semihsahinoglu.sportseus.team.dto
+package com.semihsahinoglu.sportseus.venue.dto
 
 data class VenueNode(
     val id: Int?,                 // venue varsa dolu; nadiren null olabilir
