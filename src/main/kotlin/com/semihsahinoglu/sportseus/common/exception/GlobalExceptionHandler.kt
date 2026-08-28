@@ -11,6 +11,8 @@ import com.semihsahinoglu.sportseus.fixture.exception.FixtureNotFoundException
 import com.semihsahinoglu.sportseus.league.exception.LeagueAlreadyExistsException
 import com.semihsahinoglu.sportseus.league.exception.LeagueNotFoundException
 import com.semihsahinoglu.sportseus.league.exception.LeagueNotFoundInApiException
+import com.semihsahinoglu.sportseus.lineup.exception.LineupNotFoundException
+import com.semihsahinoglu.sportseus.lineup.exception.LineupPlayerConflictException
 import com.semihsahinoglu.sportseus.player.exception.MissingReferencesException
 import com.semihsahinoglu.sportseus.player.exception.PlayerNotFoundException
 import com.semihsahinoglu.sportseus.player.exception.PlayerStatisticsNotFoundException
@@ -350,6 +352,32 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         return ErrorResponse.buildErrorResponse(
             HttpStatus.NOT_FOUND,
             "Coach Not Found",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(LineupNotFoundException::class)
+    fun LineupNotFoundException(
+        ex: LineupNotFoundException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.NOT_FOUND,
+            "Lineup Not Found",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(LineupPlayerConflictException::class)
+    fun LineupPlayerConflictException(
+        ex: LineupPlayerConflictException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.CONFLICT,
+            "Lineup Player Conflict",
             ex.message,
             request.requestURI
         )

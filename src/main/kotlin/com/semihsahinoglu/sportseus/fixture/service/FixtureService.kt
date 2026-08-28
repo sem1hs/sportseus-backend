@@ -3,6 +3,7 @@ package com.semihsahinoglu.sportseus.fixture.service
 import com.semihsahinoglu.sportseus.fixture.client.FixtureApiClient
 import com.semihsahinoglu.sportseus.fixture.dto.FixtureApiItem
 import com.semihsahinoglu.sportseus.fixture.dto.FixtureResponse
+import com.semihsahinoglu.sportseus.fixture.entity.Fixture
 import com.semihsahinoglu.sportseus.fixture.exception.FixtureMissingReferencesException
 import com.semihsahinoglu.sportseus.fixture.exception.FixtureNotFoundException
 import com.semihsahinoglu.sportseus.fixture.mapper.FixtureMapper
@@ -112,6 +113,11 @@ class FixtureService(
             ?: throw FixtureNotFoundException("Maç bulunamadı: fixture=$externalId")
         return fixtureMapper.toResponse(fixture)
     }
+
+    // METHOD: tek maç detayı, entity
+    @Transactional(readOnly = true)
+    fun getByExternalIdEntity(externalId: Long): Fixture = fixtureRepository.findWithRelationsByExternalId(externalId)
+        ?: throw FixtureNotFoundException("Maç bulunamadı: fixture=$externalId")
 
     // ADMIN: tekil silme
     @Transactional
