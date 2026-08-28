@@ -4,6 +4,7 @@ import com.semihsahinoglu.sportseus.auth.exception.AuthenticationFailedException
 import com.semihsahinoglu.sportseus.auth.exception.InvalidRefreshTokenException
 import com.semihsahinoglu.sportseus.auth.exception.RefreshTokenDoesntBelongUserException
 import com.semihsahinoglu.sportseus.auth.exception.RefreshTokenNotFoundException
+import com.semihsahinoglu.sportseus.coach.exception.CoachNotFoundException
 import com.semihsahinoglu.sportseus.common.dto.ApiResponse
 import com.semihsahinoglu.sportseus.fixture.exception.FixtureMissingReferencesException
 import com.semihsahinoglu.sportseus.fixture.exception.FixtureNotFoundException
@@ -336,6 +337,19 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         return ErrorResponse.buildErrorResponse(
             HttpStatus.BAD_REQUEST,
             "Missing References",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(CoachNotFoundException::class)
+    fun CoachNotFoundException(
+        ex: CoachNotFoundException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.NOT_FOUND,
+            "Coach Not Found",
             ex.message,
             request.requestURI
         )
