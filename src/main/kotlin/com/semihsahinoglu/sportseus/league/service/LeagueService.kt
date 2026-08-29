@@ -2,6 +2,7 @@ package com.semihsahinoglu.sportseus.league.service
 
 import com.semihsahinoglu.sportseus.league.client.LeagueApiClient
 import com.semihsahinoglu.sportseus.league.dto.CountryNode
+import com.semihsahinoglu.sportseus.league.dto.LeagueCreateRequest
 import com.semihsahinoglu.sportseus.league.dto.LeagueNode
 import com.semihsahinoglu.sportseus.league.dto.LeagueResponse
 import com.semihsahinoglu.sportseus.league.dto.LeagueUpdateRequest
@@ -48,6 +49,18 @@ class LeagueService(
     fun getAllBySeason(season: Int): List<LeagueResponse> {
         val leagues = leagueRepository.findBySeason(season)
         return leagues.map(leagueMapper::toResponse)
+    }
+
+    // ADMIN: elle league ekle (externalId+season çakışırsa 409)
+    @Transactional
+    fun create(request: LeagueCreateRequest): LeagueResponse {
+        // (externalId, season) zaten var mı? → katı hata
+        val exists = leagueRepository.findByExternalIdAndSeason(request.externalId, request.season) != null
+        if (exists) throw LeagueAlreadyExistsException("Bu lig zaten var: externalId=${request.externalId} season=${request.season}")
+
+        val league = leagueMapper.toEntity(request)
+        val saved = leagueRepository.save(league)
+        return leagueMapper.toResponse(saved)
     }
 
     // ADMIN: API-Football'dan çekip kaydet (Create)
@@ -97,11 +110,14 @@ class LeagueService(
     // METHOD: varsa güncelle, yoksa oluştur (importLeague'in fırlatmayan kardeşi)
     private fun upsertLeague(league: LeagueNode, country: CountryNode?, season: Int): LeagueResponse {
         val existing = leagueRepository.findByExternalIdAndSeason(league.id, season)
-        val saved = if (existing != null) {
-            leagueMapper.applyApiData(existing, league, country)
-            leagueRepository.save(existing)
-        } else {
-            leagueRepository.save(leagueMapper.toEntity(league, country, season))
+        val saved = when {
+            existing == null -> leagueRepository.save(leagueMapper.toEntity(league, country, season))
+
+            existing.manualAdded || existing.manuallyEdited -> existing
+            else -> {
+                leagueMapper.applyApiData(existing, league, country)
+                leagueRepository.save(existing)
+            }
         }
         return leagueMapper.toResponse(saved)
     }

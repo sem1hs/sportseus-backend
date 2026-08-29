@@ -2,6 +2,7 @@ package com.semihsahinoglu.sportseus.league.mapper
 
 import com.semihsahinoglu.sportseus.league.dto.CountryNode
 import com.semihsahinoglu.sportseus.league.dto.LeagueApiItem
+import com.semihsahinoglu.sportseus.league.dto.LeagueCreateRequest
 import com.semihsahinoglu.sportseus.league.dto.LeagueNode
 import com.semihsahinoglu.sportseus.league.dto.LeagueResponse
 import com.semihsahinoglu.sportseus.league.entity.League
@@ -35,6 +36,19 @@ class LeagueMapper {
             countryFlag = country?.flag ?: "",
             season = season,
         )
+
+    fun toEntity(request: LeagueCreateRequest) = League(
+        externalId = request.externalId,
+        name = request.name,
+        type = request.type,
+        logoUrl = request.logoUrl,
+        countryName = request.countryName,
+        countryCode = request.countryCode,
+        countryFlag = request.countryFlag,
+        season = request.season,
+        manualAdded = true,
+        manuallyEdited = false,
+    )
 
     fun applyApiData(target: League, league: LeagueNode, country: CountryNode?) {
         target.name = league.name

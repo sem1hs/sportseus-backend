@@ -35,7 +35,13 @@ class League(
     var countryFlag: String?,
 
     @Column(nullable = false)
-    var season: Int
+    var season: Int,
+
+    @Column(name = "manually_edited", nullable = false)
+    var manuallyEdited: Boolean = false,
+
+    @Column(name = "manual_added", nullable = false)
+    var manualAdded: Boolean = false
 
 ) : Auditable() {
 
@@ -47,5 +53,6 @@ class League(
         if (request.countryCode != null) this.countryCode = request.countryCode
         if (request.countryFlag != null) this.countryFlag = request.countryFlag
         if (request.season != null) this.season = request.season
+        this.manuallyEdited = true
     }
 }

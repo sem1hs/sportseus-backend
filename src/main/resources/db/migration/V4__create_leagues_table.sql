@@ -10,6 +10,9 @@ CREATE TABLE league.league
     country_flag       VARCHAR(500) NOT NULL,
     season             INTEGER      NOT NULL,
 
+    manually_edited    BOOLEAN      NOT NULL DEFAULT FALSE,
+    manual_added       BOOLEAN      NOT NULL DEFAULT FALSE,
+
     created_by         VARCHAR(255),
     created_date       TIMESTAMP,
     last_modified_by   VARCHAR(255),

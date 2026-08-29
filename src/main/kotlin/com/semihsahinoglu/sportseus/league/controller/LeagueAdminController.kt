@@ -1,6 +1,7 @@
 package com.semihsahinoglu.sportseus.league.controller
 
 import com.semihsahinoglu.sportseus.common.dto.ApiResponse
+import com.semihsahinoglu.sportseus.league.dto.LeagueCreateRequest
 import com.semihsahinoglu.sportseus.league.dto.LeagueResponse
 import com.semihsahinoglu.sportseus.league.dto.LeagueUpdateRequest
 import com.semihsahinoglu.sportseus.league.service.LeagueService
@@ -37,6 +38,14 @@ class LeagueAdminController(
     fun importLeagueByTeam(@RequestParam teamId: Int): ResponseEntity<ApiResponse<List<LeagueResponse>>> {
         val leagues = leagueService.syncLeaguesByTeam(teamId)
         val response = ApiResponse.success(leagues)
+        return ResponseEntity.status(HttpStatus.CREATED).body(response)
+    }
+
+    // ADMIN: elle league ekle
+    @PostMapping
+    fun create(@RequestBody request: LeagueCreateRequest): ResponseEntity<ApiResponse<LeagueResponse>> {
+        val league = leagueService.create(request)
+        val response = ApiResponse.success(league)
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
 
