@@ -2,7 +2,9 @@ package com.semihsahinoglu.sportseus.fixture.service
 
 import com.semihsahinoglu.sportseus.fixture.client.FixtureApiClient
 import com.semihsahinoglu.sportseus.fixture.dto.FixtureApiItem
+import com.semihsahinoglu.sportseus.fixture.dto.FixtureCreateRequest
 import com.semihsahinoglu.sportseus.fixture.dto.FixtureResponse
+import com.semihsahinoglu.sportseus.fixture.dto.FixtureUpdateRequest
 import com.semihsahinoglu.sportseus.fixture.entity.Fixture
 import com.semihsahinoglu.sportseus.fixture.exception.FixtureMissingReferencesException
 import com.semihsahinoglu.sportseus.fixture.exception.FixtureNotFoundException
@@ -14,7 +16,6 @@ import com.semihsahinoglu.sportseus.team.entity.Team
 import com.semihsahinoglu.sportseus.team.service.TeamService
 import com.semihsahinoglu.sportseus.venue.entity.Venue
 import com.semihsahinoglu.sportseus.venue.service.VenueService
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -28,7 +29,6 @@ class FixtureService(
     private val teamService: TeamService,
     private val venueService: VenueService,
 ) {
-    private val log = LoggerFactory.getLogger(this.javaClass)
 
     // ADMIN: bir takımın bir ligdeki bir sezon maçlarını sync et (toplu, ya-hep-ya-hiç)
     @Transactional
@@ -82,15 +82,91 @@ class FixtureService(
 
         val externalId = item.fixture!!.id!!
         val existing = fixtureRepository.findByExternalId(externalId)
-        val saved = if (existing != null) {
-            fixtureMapper.applyApiData(existing, item, season, venue)
-            fixtureRepository.save(existing)
-        } else {
-            fixtureRepository.save(
-                fixtureMapper.toEntity(item, season, league, homeTeam, awayTeam, venue)
+        val saved = when {
+            existing == null -> fixtureRepository.save(
+                fixtureMapper.toEntity(
+                    item,
+                    season,
+                    league,
+                    homeTeam,
+                    awayTeam,
+                    venue
+                )
             )
+
+            existing.manualAdded -> existing
+            existing.manuallyEdited -> existing
+            else -> {
+                fixtureMapper.applyApiData(existing, item, season, venue)
+                fixtureRepository.save(existing)
+            }
         }
         return fixtureMapper.toResponse(saved)
+    }
+
+    // ADMIN: create, elle fixture ekle (katı FK)
+    @Transactional
+    fun create(request: FixtureCreateRequest): FixtureResponse {
+        // FK'ları çöz — katı (yoksa hata)
+        val league = leagueService.getByExternalIdAndSeasonEntity(request.leagueExternalId, request.season)
+        val homeTeam = teamService.findByExternalIdOptional(request.homeTeamExternalId)
+            ?: throw FixtureMissingReferencesException(emptyList(), listOf(request.homeTeamExternalId))
+        val awayTeam = teamService.findByExternalIdOptional(request.awayTeamExternalId)
+            ?: throw FixtureMissingReferencesException(emptyList(), listOf(request.awayTeamExternalId))
+
+        // venue opsiyonel — verilmişse çöz (yoksa null, maç yine oluşur)
+        // burada normal id verilmişse normal id ile bulunacak
+        val venue = request.venueExternalId?.let { venueService.findByExternalId(it) }
+
+        val fixture = fixtureMapper.toManualEntity(request, league, homeTeam, awayTeam, venue)
+        val saved = fixtureRepository.save(fixture)
+        return fixtureMapper.toResponse(saved)
+    }
+
+    // ADMIN: update UUID ile (FK değişimi katı + partial + manuallyEdited)
+    @Transactional
+    fun update(id: UUID, request: FixtureUpdateRequest): FixtureResponse {
+        val fixture = fixtureRepository.findById(id)
+            .orElseThrow { FixtureNotFoundException("Maç bulunamadı: id=$id") }
+
+        // FK değişimi — verilmişse çöz (katı)
+        request.leagueExternalId?.let { extId ->
+            val season = request.season ?: fixture.season
+            fixture.league = leagueService.getByExternalIdAndSeasonEntity(extId, season)
+        }
+        request.homeTeamExternalId?.let { extId ->
+            fixture.homeTeam = teamService.findByExternalIdOptional(extId)
+                ?: throw FixtureMissingReferencesException(emptyList(), listOf(extId))
+        }
+        request.awayTeamExternalId?.let { extId ->
+            fixture.awayTeam = teamService.findByExternalIdOptional(extId)
+                ?: throw FixtureMissingReferencesException(emptyList(), listOf(extId))
+        }
+        request.venueExternalId?.let { extId ->
+            fixture.venue = venueService.findByExternalId(extId)
+                ?: throw FixtureNotFoundException("Venue bulunamadı: venue=$extId")
+        }
+
+        // primitif + score partial (entity'de merge + manuallyEdited)
+        fixture.applyManualUpdate(
+            season = request.season,
+            matchDate = request.matchDate,
+            statusShort = request.statusShort,
+            statusLong = request.statusLong,
+            elapsed = request.elapsed,
+            extra = request.extra,
+            round = request.round,
+            referee = request.referee,
+            homeWinner = request.homeWinner,
+            awayWinner = request.awayWinner,
+            goalsHome = request.goals?.home, goalsAway = request.goals?.away,
+            htHome = request.halftime?.home, htAway = request.halftime?.away,
+            ftHome = request.fulltime?.home, ftAway = request.fulltime?.away,
+            etHome = request.extratime?.home, etAway = request.extratime?.away,
+            penHome = request.penalty?.home, penAway = request.penalty?.away,
+        )
+
+        return fixtureMapper.toResponse(fixtureRepository.save(fixture))
     }
 
     // PUBLIC: bir ligin bir sezondaki tüm maçları
@@ -108,9 +184,8 @@ class FixtureService(
 
     // PUBLIC: tek maç detayı
     @Transactional(readOnly = true)
-    fun getByExternalId(externalId: Long): FixtureResponse {
-        val fixture = fixtureRepository.findWithRelationsByExternalId(externalId)
-            ?: throw FixtureNotFoundException("Maç bulunamadı: fixture=$externalId")
+    fun getById(id: UUID): FixtureResponse {
+        val fixture = fixtureRepository.findById(id).orElseThrow { FixtureNotFoundException("Maç bulunamadı: id=$id") }
         return fixtureMapper.toResponse(fixture)
     }
 
@@ -128,9 +203,9 @@ class FixtureService(
 
     // ADMIN: fixture'a elle venue bağla/güncelle (venue null/eksik gelince)
     @Transactional
-    fun updateVenue(fixtureExternalId: Long, venueExternalId: Int): FixtureResponse {
-        val fixture = fixtureRepository.findByExternalId(fixtureExternalId)
-            ?: throw FixtureNotFoundException("Maç bulunamadı: fixture=$fixtureExternalId")
+    fun updateVenue(id: UUID, venueExternalId: Int): FixtureResponse {
+        val fixture = fixtureRepository.findById(id)
+            .orElseThrow { throw FixtureNotFoundException("Maç bulunamadı: fixture=$id") }
 
         // venue DB'de olmalı — yoksa katı hata (önce venue sync et)
         val venue = venueService.getByExternalIdOrThrow(venueExternalId)

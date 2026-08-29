@@ -38,6 +38,9 @@ CREATE TABLE fixture.fixtures
     home_winner        BOOLEAN,
     away_winner        BOOLEAN,
 
+    manually_edited    BOOLEAN     NOT NULL DEFAULT FALSE,
+    manual_added       BOOLEAN     NOT NULL DEFAULT FALSE,
+
     created_by         VARCHAR(255),
     created_date       TIMESTAMP,
     last_modified_by   VARCHAR(255),

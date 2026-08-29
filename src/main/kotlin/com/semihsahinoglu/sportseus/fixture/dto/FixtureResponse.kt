@@ -5,7 +5,7 @@ import java.util.UUID
 
 data class FixtureResponse(
     val id: UUID,
-    val externalId: Long,
+    val externalId: Long?,
     val season: Int,
     val date: LocalDateTime,
     val statusShort: String,
@@ -22,4 +22,6 @@ data class FixtureResponse(
     val awayWinner: Boolean?,
     val goals: ScorePairDto,
     val score: FixtureScoreDto,
+    val manuallyEdited: Boolean,
+    val manualAdded: Boolean,
 )

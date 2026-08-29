@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 @RestController
 @RequestMapping("/fixtures")
@@ -16,9 +17,9 @@ class FixtureController(
     private val fixtureService: FixtureService,
 ) {
     // PUBLIC: tek maç detayı
-    @GetMapping("/{externalId}")
-    fun getByExternalId(@PathVariable externalId: Long): ResponseEntity<ApiResponse<FixtureResponse>> {
-        val fixture = fixtureService.getByExternalId(externalId)
+    @GetMapping("/{id}")
+    fun getById(@PathVariable id: UUID): ResponseEntity<ApiResponse<FixtureResponse>> {
+        val fixture = fixtureService.getById(id)
         val response = ApiResponse.success(fixture)
         return ResponseEntity.ok(response)
     }

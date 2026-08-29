@@ -1,12 +1,14 @@
 package com.semihsahinoglu.sportseus.fixture.mapper
 
 import com.semihsahinoglu.sportseus.fixture.dto.FixtureApiItem
+import com.semihsahinoglu.sportseus.fixture.dto.FixtureCreateRequest
 import com.semihsahinoglu.sportseus.fixture.dto.FixtureLeagueSummary
 import com.semihsahinoglu.sportseus.fixture.dto.FixtureResponse
 import com.semihsahinoglu.sportseus.fixture.dto.FixtureScoreDto
 import com.semihsahinoglu.sportseus.fixture.dto.FixtureTeamSummary
 import com.semihsahinoglu.sportseus.fixture.dto.FixtureVenueSummary
 import com.semihsahinoglu.sportseus.fixture.dto.ScorePairDto
+import com.semihsahinoglu.sportseus.fixture.dto.ScorePairInput
 import com.semihsahinoglu.sportseus.fixture.dto.ScorePairNode
 import com.semihsahinoglu.sportseus.fixture.entity.Fixture
 import com.semihsahinoglu.sportseus.fixture.entity.ScorePair
@@ -117,7 +119,45 @@ class FixtureMapper {
                 extratime = f.extratime.toDto(),
                 penalty = f.penalty.toDto(),
             ),
+            manuallyEdited = f.manuallyEdited,
+            manualAdded = f.manualAdded,
         )
+
+    fun toManualEntity(
+        request: FixtureCreateRequest,
+        league: League,
+        homeTeam: Team,
+        awayTeam: Team,
+        venue: Venue?,
+    ): Fixture =
+        Fixture(
+            externalId = null,
+            season = request.season,
+            matchDate = request.matchDate,
+            statusShort = request.statusShort,
+            statusLong = request.statusLong,
+            elapsed = request.elapsed,
+            extra = request.extra,
+            round = request.round,
+            referee = request.referee,
+            league = league,
+            homeTeam = homeTeam,
+            awayTeam = awayTeam,
+            venue = venue,
+            goals = request.goals?.toScorePair(),
+            halftime = request.halftime?.toScorePair(),
+            fulltime = request.fulltime?.toScorePair(),
+            extratime = request.extratime?.toScorePair(),
+            penalty = request.penalty?.toScorePair(),
+            homeWinner = request.homeWinner,
+            awayWinner = request.awayWinner,
+            manualAdded = true,                   // elle eklendi
+            manuallyEdited = false,
+        )
+
+    // ScorePairInput → ScorePair embeddable
+    private fun ScorePairInput.toScorePair(): ScorePair =
+        ScorePair(home = this.home, away = this.away)
 
     private fun ScorePairNode?.toScorePair(): ScorePair =
         ScorePair(this?.home, this?.away)

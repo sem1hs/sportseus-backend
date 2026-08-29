@@ -17,8 +17,8 @@ import java.time.LocalDateTime
 )
 class Fixture(
 
-    @Column(name = "external_id", nullable = false, unique = true)
-    var externalId: Long,
+    @Column(name = "external_id", unique = true)
+    var externalId: Long?,
 
     @Column(nullable = false)
     var season: Int,
@@ -102,10 +102,64 @@ class Fixture(
     var homeWinner: Boolean? = null,
 
     @Column(name = "away_winner")
-    var awayWinner: Boolean? = null
+    var awayWinner: Boolean? = null,
+
+    @Column(name = "manually_edited", nullable = false)
+    var manuallyEdited: Boolean = false,
+
+    @Column(name = "manual_added", nullable = false)
+    var manualAdded: Boolean = false
 
 ) : Auditable() {
     fun applyVenue(venue: Venue) {
         this.venue = venue
+    }
+
+    fun applyManualUpdate(
+        season: Int?,
+        matchDate: LocalDateTime?,
+        statusShort: String?,
+        statusLong: String?,
+        elapsed: Int?,
+        extra: Int?,
+        round: String?,
+        referee: String?,
+        homeWinner: Boolean?,
+        awayWinner: Boolean?,
+        goalsHome: Int?, goalsAway: Int?,
+        htHome: Int?, htAway: Int?,
+        ftHome: Int?, ftAway: Int?,
+        etHome: Int?, etAway: Int?,
+        penHome: Int?, penAway: Int?,
+    ) {
+        season?.let { this.season = it }
+        matchDate?.let { this.matchDate = it }
+        statusShort?.let { this.statusShort = it }
+        statusLong?.let { this.statusLong = it }
+        elapsed?.let { this.elapsed = it }
+        extra?.let { this.extra = it }
+        round?.let { this.round = it }
+        referee?.let { this.referee = it }
+        homeWinner?.let { this.homeWinner = it }
+        awayWinner?.let { this.awayWinner = it }
+
+        // score blokları — embeddable-null garantili merge
+        if (goalsHome != null || goalsAway != null) {
+            (goals ?: ScorePair().also { goals = it }).merge(goalsHome, goalsAway)
+        }
+        if (htHome != null || htAway != null) {
+            (halftime ?: ScorePair().also { halftime = it }).merge(htHome, htAway)
+        }
+        if (ftHome != null || ftAway != null) {
+            (fulltime ?: ScorePair().also { fulltime = it }).merge(ftHome, ftAway)
+        }
+        if (etHome != null || etAway != null) {
+            (extratime ?: ScorePair().also { extratime = it }).merge(etHome, etAway)
+        }
+        if (penHome != null || penAway != null) {
+            (penalty ?: ScorePair().also { penalty = it }).merge(penHome, penAway)
+        }
+
+        this.manuallyEdited = true
     }
 }
