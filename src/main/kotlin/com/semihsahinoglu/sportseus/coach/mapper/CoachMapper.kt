@@ -1,8 +1,10 @@
 package com.semihsahinoglu.sportseus.coach.mapper
 
 import com.semihsahinoglu.sportseus.coach.dto.CoachApiItem
+import com.semihsahinoglu.sportseus.coach.dto.CoachCareerInput
 import com.semihsahinoglu.sportseus.coach.dto.CoachCareerNode
 import com.semihsahinoglu.sportseus.coach.dto.CoachCareerResponse
+import com.semihsahinoglu.sportseus.coach.dto.CoachCreateRequest
 import com.semihsahinoglu.sportseus.coach.dto.CoachResponse
 import com.semihsahinoglu.sportseus.coach.entity.Coach
 import com.semihsahinoglu.sportseus.coach.entity.CoachCareer
@@ -35,6 +37,36 @@ class CoachMapper {
             teamLogo = node.team?.logo,
             startDate = requireNotNull(node.start) { "Career start null olamaz" },
             endDate = node.end,
+        )
+
+    fun toManualEntity(request: CoachCreateRequest): Coach =
+        Coach(
+            externalId = null,                  // elle eklemede API id yok
+            name = request.name,
+            firstName = request.firstName,
+            lastName = request.lastName,
+            age = request.age,
+            birthDate = request.birthDate,
+            birthPlace = request.birthPlace,
+            birthCountry = request.birthCountry,
+            nationality = request.nationality,
+            height = request.height,
+            weight = request.weight,
+            photo = request.photo,
+            manuallyEdited = false,
+            manualAdded = true,
+        )
+
+    fun toManualCareerEntity(coach: Coach, input: CoachCareerInput): CoachCareer =
+        CoachCareer(
+            coach = coach,
+            teamExternalId = input.teamExternalId,
+            teamName = input.teamName,
+            teamLogo = input.teamLogo,
+            startDate = input.startDate,
+            endDate = input.endDate,
+            manualAdded = true,
+            manuallyEdited = false,
         )
 
     fun applyApiData(target: Coach, item: CoachApiItem) {

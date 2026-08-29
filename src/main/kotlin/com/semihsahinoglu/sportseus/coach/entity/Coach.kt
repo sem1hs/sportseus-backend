@@ -14,8 +14,8 @@ import java.time.LocalDate
 )
 class Coach(
 
-    @Column(name = "external_id", nullable = false, unique = true)
-    var externalId: Int,
+    @Column(name = "external_id", unique = true)
+    var externalId: Int? = null,
 
     @Column(nullable = false, length = 150)
     var name: String,
@@ -53,7 +53,10 @@ class Coach(
     @Column(name = "manually_edited", nullable = false)
     var manuallyEdited: Boolean = false,
 
-    ) : Auditable() {
+    @Column(name = "manual_added", nullable = false)
+    var manualAdded: Boolean = false
+
+) : Auditable() {
 
     // partial update (transfer deseni) — manuallyEdited=true çağıran set eder
     fun applyManualUpdate(

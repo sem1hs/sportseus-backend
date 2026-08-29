@@ -27,13 +27,18 @@ interface CoachCareerRepository : JpaRepository<CoachCareer, UUID> {
     // READ: bir coach'un career'ı (coach entity üzerinden)
     fun findAllByCoachIdOrderByStartDateDesc(coachId: UUID): List<CoachCareer>
 
-    @Query("""
+    @Query(
+        """
     SELECT c FROM CoachCareer c
     JOIN FETCH c.coach
     WHERE c.coach IN (
         SELECT DISTINCT cc.coach FROM CoachCareer cc WHERE cc.teamExternalId = :teamExternalId
     )
     ORDER BY c.startDate DESC
-""")
+"""
+    )
     fun findAllCareersByTeamExternalId(@Param("teamExternalId") teamExternalId: Int): List<CoachCareer>
+
+    @EntityGraph(attributePaths = ["coach"])
+    fun findByIdAndCoachId(id: UUID, coachId: UUID): CoachCareer?
 }

@@ -5,7 +5,7 @@ import java.util.UUID
 
 data class CoachResponse(
     val id: UUID,
-    val externalId: Int,
+    val externalId: Int?,
     val name: String,
     val firstName: String?,
     val lastName: String?,

@@ -34,6 +34,27 @@ class CoachCareer(
     var startDate: LocalDate,
 
     @Column(name = "end_date")
-    var endDate: LocalDate? = null
+    var endDate: LocalDate? = null,
 
-) : Auditable()
+    @Column(name = "manually_edited", nullable = false)
+    var manuallyEdited: Boolean = false,
+
+    @Column(name = "manual_added", nullable = false)
+    var manualAdded: Boolean = false
+
+) : Auditable() {
+    fun applyUpdate(
+        teamExternalId: Int?,
+        teamName: String?,
+        teamLogo: String?,
+        startDate: LocalDate?,
+        endDate: LocalDate?,
+    ) {
+        teamExternalId?.let { this.teamExternalId = it }
+        teamName?.let { this.teamName = it }
+        teamLogo?.let { this.teamLogo = it }
+        startDate?.let { this.startDate = it }
+        endDate?.let { this.endDate = it }
+        this.manuallyEdited = true
+    }
+}

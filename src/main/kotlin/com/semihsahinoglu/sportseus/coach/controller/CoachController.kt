@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 @RestController
 @RequestMapping("/coaches")
@@ -16,9 +17,9 @@ class CoachController(
 ) {
 
     // PUBLIC: tek coach profili
-    @GetMapping("/{externalId}")
-    fun getCoach(@PathVariable externalId: Int): ResponseEntity<ApiResponse<CoachResponse>> {
-        val coach = coachService.getByExternalId(externalId)
+    @GetMapping("/{id}")
+    fun getCoach(@PathVariable id: UUID): ResponseEntity<ApiResponse<CoachResponse>> {
+        val coach = coachService.getByExternalId(id)
         val response = ApiResponse.success(coach)
         return ResponseEntity.ok(response)
     }

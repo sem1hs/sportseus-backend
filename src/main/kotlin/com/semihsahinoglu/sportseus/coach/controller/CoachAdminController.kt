@@ -1,5 +1,6 @@
 package com.semihsahinoglu.sportseus.coach.controller
 
+import com.semihsahinoglu.sportseus.coach.dto.CoachCreateRequest
 import com.semihsahinoglu.sportseus.coach.dto.CoachResponse
 import com.semihsahinoglu.sportseus.coach.dto.CoachUpdateRequest
 import com.semihsahinoglu.sportseus.coach.service.CoachService
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 @RestController
 @RequestMapping("/admin/coaches")
@@ -36,9 +38,17 @@ class CoachAdminController(
         return ResponseEntity.ok(response)
     }
 
-    // ADMIN: elle güncelleme (partial)
-    @PatchMapping("/{externalId}")
-    fun update(
+    // ADMIN: elle create
+    @PostMapping
+    fun createCoach(@RequestBody request: CoachCreateRequest): ResponseEntity<ApiResponse<CoachResponse>> {
+        val coach = coachService.create(request)
+        val response = ApiResponse.success(coach)
+        return ResponseEntity.ok(response)
+    }
+
+    // ADMIN: elle güncelleme by externalId (partial)
+    @PatchMapping("/externalId/{externalId}")
+    fun updateByExternalId(
         @PathVariable externalId: Int,
         @RequestBody request: CoachUpdateRequest,
     ): ResponseEntity<ApiResponse<CoachResponse>> {
@@ -47,10 +57,21 @@ class CoachAdminController(
         return ResponseEntity.ok(response)
     }
 
+    // ADMIN: elle güncelleme (partial)
+    @PatchMapping("/{id}")
+    fun update(
+        @PathVariable id: UUID,
+        @RequestBody request: CoachUpdateRequest,
+    ): ResponseEntity<ApiResponse<CoachResponse>> {
+        val coach = coachService.update(id, request)
+        val response = ApiResponse.success(coach)
+        return ResponseEntity.ok(response)
+    }
+
     // ADMIN: hard delete
-    @DeleteMapping("/{externalId}")
-    fun delete(@PathVariable externalId: Int): ResponseEntity<Void> {
-        coachService.deleteByExternalId(externalId)
+    @DeleteMapping("/{id}")
+    fun delete(@PathVariable id: UUID): ResponseEntity<Void> {
+        coachService.deleteByExternalId(id)
         return ResponseEntity.noContent().build()
     }
 }
