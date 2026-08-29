@@ -17,6 +17,7 @@ import com.semihsahinoglu.sportseus.player.exception.MissingReferencesException
 import com.semihsahinoglu.sportseus.player.exception.PlayerNotFoundException
 import com.semihsahinoglu.sportseus.player.exception.PlayerStatisticsNotFoundException
 import com.semihsahinoglu.sportseus.player.exception.PlayerTeamNotFoundException
+import com.semihsahinoglu.sportseus.standing.exception.StandingNotFoundException
 import com.semihsahinoglu.sportseus.team.exception.TeamNotFoundException
 import com.semihsahinoglu.sportseus.team.exception.TeamStatisticsNotFoundException
 import com.semihsahinoglu.sportseus.transfer.exception.TransferConflictException
@@ -378,6 +379,19 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         return ErrorResponse.buildErrorResponse(
             HttpStatus.CONFLICT,
             "Lineup Player Conflict",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(StandingNotFoundException::class)
+    fun StandingNotFoundException(
+        ex: StandingNotFoundException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.NOT_FOUND,
+            "Standing Not Found",
             ex.message,
             request.requestURI
         )
