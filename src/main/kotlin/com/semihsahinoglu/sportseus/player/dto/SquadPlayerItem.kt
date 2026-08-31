@@ -5,7 +5,7 @@ import java.util.UUID
 data class SquadPlayerItem(
     val playerTeamId: UUID,     // üyelik kaydının id'si (gerekirse silme/detay için)
     val id: UUID,               // Player'ın bizdeki id'si
-    val externalId: Long,       // Player'ın API id'si
+    val externalId: Long?,       // Player'ın API id'si
     val name: String,
     val age: Int?,
     val photo: String?,

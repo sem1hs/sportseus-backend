@@ -19,6 +19,17 @@ class PlayerStatisticsMapper {
     fun toEntity(player: Player, team: Team, league: League, season: Int, stats: String): PlayerStatistics =
         PlayerStatistics(player = player, team = team, league = league, season = season, stats = stats)
 
+    fun toManuelEntity(player: Player, team: Team, league: League, season: Int, stats: String): PlayerStatistics =
+        PlayerStatistics(
+            player = player,
+            team = team,
+            league = league,
+            season = season,
+            stats = stats,
+            manualAdded = true,
+            manuallyEdited = false,
+        )
+
     fun toResponse(entity: PlayerStatistics, node: PlayerStatisticsNode): PlayerStatisticsResponse =
         PlayerStatisticsResponse(
             id = entity.id!!,

@@ -9,8 +9,8 @@ import java.time.LocalDate
 @Entity
 @Table(schema = "player", name = "players")
 class Player(
-    @Column(name = "external_id", nullable = false, unique = true)
-    var externalId: Long,                 // API-Football player id
+    @Column(name = "external_id", unique = true)
+    var externalId: Long? = null,                 // API-Football player id
 
     @Column(nullable = false)
     var name: String,
@@ -37,11 +37,37 @@ class Player(
     var nationality: String? = null,
 
     @Column
-    var height: String? = null,           // "175" — API string veriyor, öyle tut
+    var height: String? = null,
 
     @Column
-    var weight: String? = null,           // "71"
+    var weight: String? = null,
 
     @Column(columnDefinition = "text")
-    var photo: String? = null
-) : Auditable()
+    var photo: String? = null,
+
+    @Column(name = "manually_edited", nullable = false)
+    var manuallyEdited: Boolean = false,
+
+    @Column(name = "manual_added", nullable = false)
+    var manualAdded: Boolean = false,
+) : Auditable() {
+
+    fun applyManualUpdate(
+        name: String?, firstName: String?, lastName: String?,
+        age: Int?, birthDate: LocalDate?, birthPlace: String?, birthCountry: String?,
+        nationality: String?, height: String?, weight: String?, photo: String?,
+    ) {
+        name?.let { this.name = it }
+        firstName?.let { this.firstName = it }
+        lastName?.let { this.lastName = it }
+        age?.let { this.age = it }
+        birthDate?.let { this.birthDate = it }
+        birthPlace?.let { this.birthPlace = it }
+        birthCountry?.let { this.birthCountry = it }
+        nationality?.let { this.nationality = it }
+        height?.let { this.height = it }
+        weight?.let { this.weight = it }
+        photo?.let { this.photo = it }
+        this.manuallyEdited = true
+    }
+}

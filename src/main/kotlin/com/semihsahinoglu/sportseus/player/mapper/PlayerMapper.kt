@@ -1,5 +1,6 @@
 package com.semihsahinoglu.sportseus.player.mapper
 
+import com.semihsahinoglu.sportseus.player.dto.PlayerCreateRequest
 import com.semihsahinoglu.sportseus.player.dto.PlayerNode
 import com.semihsahinoglu.sportseus.player.dto.PlayerResponse
 import com.semihsahinoglu.sportseus.player.dto.squad.SquadPlayerNode
@@ -24,6 +25,23 @@ class PlayerMapper {
             weight = node.weight,
             photo = node.photo,
         )
+
+    fun toEntity(request: PlayerCreateRequest): Player = Player(
+        externalId = null,
+        name = request.name,
+        firstName = request.firstName,
+        lastName = request.lastName,
+        age = request.age,
+        birthDate = request.birthDate,
+        birthPlace = request.birthPlace,
+        birthCountry = request.birthCountry,
+        nationality = request.nationality,
+        height = request.height,
+        weight = request.weight,
+        photo = request.photo,
+        manualAdded = true,
+        manuallyEdited = false,
+    )
 
     fun applyApiData(target: Player, node: PlayerNode) {
         // external_id değişmez (kimlik). name null gelirse mevcut adı koru.

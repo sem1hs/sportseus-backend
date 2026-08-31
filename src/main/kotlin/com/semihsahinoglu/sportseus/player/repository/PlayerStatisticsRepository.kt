@@ -16,11 +16,11 @@ interface PlayerStatisticsRepository : JpaRepository<PlayerStatistics, UUID> {
     ): PlayerStatistics?
 
     // Bir oyuncunun belirli sezondaki tüm lig istatistikleri (public okuma)
-    fun findAllByPlayerIdAndSeason(playerId: UUID, season: Int): List<PlayerStatistics>
+    //fun findAllByPlayerIdAndSeason(playerId: UUID, season: Int): List<PlayerStatistics>
 
     // Bir oyuncunun tüm istatistikleri
     fun findAllByPlayerId(playerId: UUID): List<PlayerStatistics>
 
     @EntityGraph(attributePaths = ["team", "league"])
-    fun findAllByPlayerExternalIdAndSeason(playerExternalId: Long, season: Int): List<PlayerStatistics>
+    fun findAllByPlayerIdAndSeason(playerId: UUID, season: Int): List<PlayerStatistics>
 }

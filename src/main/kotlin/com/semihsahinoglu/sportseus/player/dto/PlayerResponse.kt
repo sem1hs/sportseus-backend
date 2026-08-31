@@ -5,7 +5,7 @@ import java.util.UUID
 
 data class PlayerResponse(
     val id: UUID,
-    val externalId: Long,
+    val externalId: Long?,
     val name: String,
     val firstName: String?,
     val lastName: String?,

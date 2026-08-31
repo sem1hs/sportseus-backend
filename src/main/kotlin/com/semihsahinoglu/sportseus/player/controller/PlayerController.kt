@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 @RestController
 @RequestMapping("/players")
@@ -23,21 +24,21 @@ class PlayerController(
     private val playerTeamService: PlayerTeamService,
 ) {
 
-    // Profil — GET /players/{externalId}
-    @GetMapping("/{externalId}")
-    fun getProfile(@PathVariable externalId: Long): ResponseEntity<ApiResponse<PlayerResponse>> {
-        val playerProfile = playerService.getByExternalId(externalId)
+    // PUBLIC: profil
+    @GetMapping("/{id}")
+    fun getProfile(@PathVariable id: UUID): ResponseEntity<ApiResponse<PlayerResponse>> {
+        val playerProfile = playerService.getById(id)
         val response = ApiResponse.success(playerProfile)
         return ResponseEntity.ok(response)
     }
 
-    // Sezon istatistikleri — GET /players/{externalId}/statistics?season=2024
-    @GetMapping("/{externalId}/statistics")
+    // PUBLIC: sezon istatistikleri
+    @GetMapping("/{id}/statistics")
     fun getStatistics(
-        @PathVariable externalId: Long,
+        @PathVariable id: UUID,
         @RequestParam season: Int,
     ): ResponseEntity<ApiResponse<List<PlayerStatisticsResponse>>> {
-        val playerStatistics = playerStatisticsService.getByPlayerAndSeason(externalId, season)
+        val playerStatistics = playerStatisticsService.getByPlayerAndSeason(id, season)
         val response = ApiResponse.success(playerStatistics)
         return ResponseEntity.ok(response)
     }

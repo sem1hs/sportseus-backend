@@ -38,4 +38,15 @@ class PlayerStatistics(
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", nullable = false)
     var stats: String,                    // saf istatistik jsonb (id'siz)
-) : Auditable()
+
+    @Column(name = "manually_edited", nullable = false)
+    var manuallyEdited: Boolean = false,
+
+    @Column(name = "manual_added", nullable = false)
+    var manualAdded: Boolean = false,
+) : Auditable() {
+
+    fun applyManuallyEdited() {
+        this.manuallyEdited = true
+    }
+}

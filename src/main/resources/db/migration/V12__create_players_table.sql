@@ -13,6 +13,8 @@ CREATE TABLE player.players
     height             VARCHAR(255),
     weight             VARCHAR(255),
     photo              TEXT,
+    manually_edited    BOOLEAN      NOT NULL DEFAULT FALSE,
+    manual_added       BOOLEAN      NOT NULL DEFAULT FALSE,
     created_by         VARCHAR(255),
     created_date       TIMESTAMP,
     last_modified_by   VARCHAR(255),
