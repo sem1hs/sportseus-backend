@@ -1,0 +1,2 @@
+ALTER TABLE venue.venues
+    ADD COLUMN manually_edited BOOLEAN NOT NULL DEFAULT FALSE;

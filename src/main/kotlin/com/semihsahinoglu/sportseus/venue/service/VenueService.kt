@@ -3,6 +3,7 @@ package com.semihsahinoglu.sportseus.venue.service
 import com.semihsahinoglu.sportseus.team.dto.TeamApiItem
 import com.semihsahinoglu.sportseus.venue.client.VenueApiClient
 import com.semihsahinoglu.sportseus.venue.dto.VenueResponse
+import com.semihsahinoglu.sportseus.venue.dto.VenueUpdateRequest
 import com.semihsahinoglu.sportseus.venue.entity.Venue
 import com.semihsahinoglu.sportseus.venue.exception.VenueNotFoundException
 import com.semihsahinoglu.sportseus.venue.mapper.VenueMapper
@@ -23,11 +24,13 @@ class VenueService(
             ?: throw VenueNotFoundException("API-Football'da venue bulunamadı: id=$venueExternalId")
 
         val existing = venueRepository.findByExternalId(item.id!!)
-        val saved = if (existing != null) {
-            venueMapper.applyApiData(existing, item)
-            venueRepository.save(existing)
-        } else {
-            venueRepository.save(venueMapper.toEntity(item))
+        val saved = when {
+            existing == null -> venueRepository.save(venueMapper.toEntity(item))
+            existing.manuallyEdited -> existing
+            else -> {
+                venueMapper.applyApiData(existing, item)
+                venueRepository.save(existing)
+            }
         }
         return venueMapper.toResponse(saved)
     }
@@ -45,6 +48,24 @@ class VenueService(
                 }
             }
         }
+    }
+
+    // ADMIN: elle güncelleme (partial, manuallyEdited=true)
+    @Transactional
+    fun update(venueExternalId: Int, request: VenueUpdateRequest): VenueResponse {
+        val venue = venueRepository.findByExternalId(venueExternalId)
+            ?: throw VenueNotFoundException("Venue bulunamadı: id=$venueExternalId")
+
+        venue.applyManualUpdate(
+            name = request.name,
+            address = request.address,
+            city = request.city,
+            country = request.country,
+            capacity = request.capacity,
+            surface = request.surface,
+            imageUrl = request.imageUrl,
+        )
+        return venueMapper.toResponse(venueRepository.save(venue))
     }
 
     // METHOD: id ile venue bulma

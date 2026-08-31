@@ -1,10 +1,15 @@
 package com.semihsahinoglu.sportseus.transfer.service
 
 import com.semihsahinoglu.sportseus.player.entity.Player
+import com.semihsahinoglu.sportseus.player.service.PlayerService
 import com.semihsahinoglu.sportseus.team.entity.Team
+import com.semihsahinoglu.sportseus.team.exception.TeamNotFoundException
 import com.semihsahinoglu.sportseus.team.service.TeamService
+import com.semihsahinoglu.sportseus.transfer.dto.TransferCreateRequest
 import com.semihsahinoglu.sportseus.transfer.dto.TransferResponse
 import com.semihsahinoglu.sportseus.transfer.dto.TransferUpdateRequest
+import com.semihsahinoglu.sportseus.transfer.entity.Transfer
+import com.semihsahinoglu.sportseus.transfer.entity.TransferType
 import com.semihsahinoglu.sportseus.transfer.exception.TransferConflictException
 import com.semihsahinoglu.sportseus.transfer.exception.TransferNotFoundException
 import com.semihsahinoglu.sportseus.transfer.mapper.TransferMapper
@@ -20,6 +25,7 @@ class TransferService(
     private val transferRepository: TransferRepository,
     private val transferMapper: TransferMapper,
     private val teamService: TeamService,
+    private val playerService: PlayerService,
 ) {
 
     // SYNC: tek transfer upsert (facade döngüden çağırır, per-transfer tx)
@@ -40,12 +46,37 @@ class TransferService(
 
         val saved = when {
             existing == null -> transferRepository.save(transferMapper.toEntity(player, teamIn, teamOut, date, rawType))
-            existing.manuallyEdited -> existing
+            existing.manualAdded || existing.manuallyEdited -> existing
             else -> {
                 transferMapper.applyApiData(existing, teamIn, teamOut, rawType)
                 transferRepository.save(existing)
             }
         }
+        return transferMapper.toResponse(saved)
+    }
+
+    // ADMIN: elle transfer ekle (playerId UUID + team external, composite çakışma 409)
+    @Transactional
+    fun create(request: TransferCreateRequest): TransferResponse {
+        val player = playerService.findById(request.playerId)
+
+        val teamIn = teamService.findByExternalIdOptional(request.teamInExternalId)
+            ?: throw TeamNotFoundException("Takım bulunamadı (in): team=${request.teamInExternalId}")
+
+        val teamOut = teamService.findByExternalIdOptional(request.teamOutExternalId)
+            ?: throw TeamNotFoundException("Takım bulunamadı (out): team=${request.teamOutExternalId}")
+
+        // composite çakışma (player+date+in+out)
+        val exists = transferRepository.findByPlayerIdAndDateAndTeamInIdAndTeamOutId(
+            player.id!!, request.date, teamIn.id!!, teamOut.id!!
+        ) != null
+        if (exists) throw TransferConflictException("Bu transfer zaten var: player=${request.playerId} date=${request.date} in=${request.teamInExternalId} out=${request.teamOutExternalId}")
+
+        // fee invariant: SALE değilse null
+        val fee = if (request.transferType == TransferType.SALE) request.fee else null
+
+        val transfer = transferMapper.toEntity(player, teamIn, teamOut, request, fee)
+        val saved = transferRepository.save(transfer)
         return transferMapper.toResponse(saved)
     }
 

@@ -1,10 +1,12 @@
 package com.semihsahinoglu.sportseus.transfer.controller
 
 import com.semihsahinoglu.sportseus.common.dto.ApiResponse
+import com.semihsahinoglu.sportseus.transfer.dto.TransferCreateRequest
 import com.semihsahinoglu.sportseus.transfer.dto.TransferResponse
 import com.semihsahinoglu.sportseus.transfer.dto.TransferUpdateRequest
 import com.semihsahinoglu.sportseus.transfer.facade.TransferSyncFacade
 import com.semihsahinoglu.sportseus.transfer.service.TransferService
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -35,6 +37,14 @@ class TransferAdminController(
         val transfers = transferSyncFacade.syncByTeam(teamExternalId)
         val response = ApiResponse.success(transfers)
         return ResponseEntity.ok(response)
+    }
+
+    // ADMIN: elle transfer ekleme
+    @PostMapping
+    fun create(@RequestBody request: TransferCreateRequest): ResponseEntity<ApiResponse<TransferResponse>> {
+        val transfers = transferService.create(request)
+        val response = ApiResponse.success(transfers)
+        return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
 
     // ADMIN: elle güncelleme (partial)

@@ -53,6 +53,10 @@ class Transfer(
 
     @Column(name = "manually_edited", nullable = false)
     var manuallyEdited: Boolean = false,
+
+    @Column(name = "manual_added", nullable = false)
+    var manualAdded: Boolean = false
+
 ) : Auditable() {
     fun applyManualUpdate(
         date: LocalDate?,

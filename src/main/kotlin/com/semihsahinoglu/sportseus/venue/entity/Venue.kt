@@ -30,6 +30,9 @@ class Venue(
 
     @Column(name = "image_url", length = 500)
     var imageUrl: String? = null,
+
+    @Column(name = "manually_edited", nullable = false)
+    var manuallyEdited: Boolean = false
 ) : Auditable() {
     fun updateFrom(other: Venue) {
         this.name = other.name
@@ -39,5 +42,24 @@ class Venue(
         this.capacity = other.capacity
         this.surface = other.surface
         this.imageUrl = other.imageUrl
+    }
+
+    fun applyManualUpdate(
+        name: String?,
+        address: String?,
+        city: String?,
+        country: String?,
+        capacity: Int?,
+        surface: String?,
+        imageUrl: String?,
+    ) {
+        name?.let { this.name = it }
+        address?.let { this.address = it }
+        city?.let { this.city = it }
+        country?.let { this.country = it }
+        capacity?.let { this.capacity = it }
+        surface?.let { this.surface = it }
+        imageUrl?.let { this.imageUrl = it }
+        this.manuallyEdited = true
     }
 }

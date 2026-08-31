@@ -2,6 +2,7 @@ package com.semihsahinoglu.sportseus.transfer.mapper
 
 import com.semihsahinoglu.sportseus.player.entity.Player
 import com.semihsahinoglu.sportseus.team.entity.Team
+import com.semihsahinoglu.sportseus.transfer.dto.TransferCreateRequest
 import com.semihsahinoglu.sportseus.transfer.dto.TransferPlayerSummary
 import com.semihsahinoglu.sportseus.transfer.dto.TransferResponse
 import com.semihsahinoglu.sportseus.transfer.dto.TransferTeamSummary
@@ -32,6 +33,19 @@ class TransferMapper {
             fee = fee,
         )
     }
+
+    fun toEntity(player: Player, teamIn: Team, teamOut: Team, request: TransferCreateRequest, fee: Long?): Transfer =
+        Transfer(
+            player = player,
+            teamIn = teamIn,
+            teamOut = teamOut,
+            date = request.date,
+            rawType = request.rawType,
+            transferType = request.transferType,
+            fee = fee,
+            manualAdded = true,
+            manuallyEdited = false,
+        )
 
     fun applyApiData(target: Transfer, teamIn: Team, teamOut: Team, rawType: String) {
         val (type, fee) = parseType(rawType)
