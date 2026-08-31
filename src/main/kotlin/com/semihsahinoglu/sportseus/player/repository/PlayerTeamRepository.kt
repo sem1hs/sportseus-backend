@@ -19,4 +19,7 @@ interface PlayerTeamRepository : JpaRepository<PlayerTeam, UUID> {
 
     @EntityGraph(attributePaths = ["team"])
     fun findAllByPlayerExternalIdOrderBySeasonDesc(playerExternalId: Long): List<PlayerTeam>
+
+    @EntityGraph(attributePaths = ["team"])
+    fun findAllByPlayerIdOrderBySeasonDesc(playerId: UUID): List<PlayerTeam>
 }

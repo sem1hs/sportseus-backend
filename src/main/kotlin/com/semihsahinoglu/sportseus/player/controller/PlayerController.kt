@@ -3,8 +3,8 @@ package com.semihsahinoglu.sportseus.player.controller
 import com.semihsahinoglu.sportseus.common.dto.ApiResponse
 import com.semihsahinoglu.sportseus.player.dto.PlayerResponse
 import com.semihsahinoglu.sportseus.player.dto.PlayerStatisticsResponse
-import com.semihsahinoglu.sportseus.player.dto.PlayerTeamHistoryResponse
-import com.semihsahinoglu.sportseus.player.dto.SquadResponse
+import com.semihsahinoglu.sportseus.player.dto.PlayerTeamResponse
+import com.semihsahinoglu.sportseus.squad.dto.SquadResponse
 import com.semihsahinoglu.sportseus.player.service.PlayerService
 import com.semihsahinoglu.sportseus.player.service.PlayerStatisticsService
 import com.semihsahinoglu.sportseus.player.service.PlayerTeamService
@@ -43,22 +43,11 @@ class PlayerController(
         return ResponseEntity.ok(response)
     }
 
-    // Takım geçmişi — GET /players/{externalId}/teams
-    @GetMapping("/{externalId}/teams")
-    fun getTeamHistory(@PathVariable externalId: Long): ResponseEntity<ApiResponse<List<PlayerTeamHistoryResponse>>> {
-        val playerTeamHistory = playerTeamService.getTeamHistoryByPlayerExternalId(externalId)
+    // PUBLIC: takım geçmişi
+    @GetMapping("/{id}/teams")
+    fun getTeamHistory(@PathVariable id: UUID): ResponseEntity<ApiResponse<List<PlayerTeamResponse>>> {
+        val playerTeamHistory = playerTeamService.getPlayerTeamByPlayerId(id)
         val response = ApiResponse.success(playerTeamHistory)
-        return ResponseEntity.ok(response)
-    }
-
-    // Kadro — GET /players/squads?team={teamExternalId}&season=2024
-    @GetMapping("/squads")
-    fun getSquad(
-        @RequestParam teamId: Long,
-        @RequestParam season: Int
-    ): ResponseEntity<ApiResponse<SquadResponse>> {
-        val squad = playerTeamService.getSquadByTeamExternalId(teamId, season)
-        val response = ApiResponse.success(squad)
         return ResponseEntity.ok(response)
     }
 }

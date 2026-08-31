@@ -34,6 +34,7 @@ CREATE TABLE standing.standings
     away_goals_against INTEGER,
 
     manually_edited    BOOLEAN NOT NULL DEFAULT FALSE,
+    manual_added       BOOLEAN NOT NULL DEFAULT FALSE,
 
     created_by         VARCHAR(255),
     created_date       TIMESTAMP,

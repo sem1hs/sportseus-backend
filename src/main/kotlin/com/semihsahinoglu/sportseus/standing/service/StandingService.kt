@@ -2,12 +2,17 @@ package com.semihsahinoglu.sportseus.standing.service
 
 import com.semihsahinoglu.sportseus.league.service.LeagueService
 import com.semihsahinoglu.sportseus.standing.client.StandingApiClient
+import com.semihsahinoglu.sportseus.standing.dto.StandingCreateRequest
 import com.semihsahinoglu.sportseus.standing.dto.StandingResponse
 import com.semihsahinoglu.sportseus.standing.dto.StandingRowNode
 import com.semihsahinoglu.sportseus.standing.dto.StandingUpdateRequest
+import com.semihsahinoglu.sportseus.standing.entity.Standing
+import com.semihsahinoglu.sportseus.standing.entity.StandingStats
+import com.semihsahinoglu.sportseus.standing.exception.StandingConflictException
 import com.semihsahinoglu.sportseus.standing.exception.StandingNotFoundException
 import com.semihsahinoglu.sportseus.standing.mapper.StandingMapper
 import com.semihsahinoglu.sportseus.standing.repository.StandingRepository
+import com.semihsahinoglu.sportseus.team.exception.TeamNotFoundException
 import com.semihsahinoglu.sportseus.team.service.TeamService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -40,7 +45,7 @@ class StandingService(
             val existing = standingRepository.findByLeagueIdAndTeamIdAndSeason(league.id!!, team.id!!, season)
             val saved = when {
                 existing == null -> standingRepository.save(standingMapper.toEntity(row, league, team, season))
-                existing.manuallyEdited -> existing
+                existing.manualAdded || existing.manuallyEdited -> existing
                 else -> {
                     standingMapper.applyApiData(existing, row)
                     standingRepository.save(existing)
@@ -49,6 +54,23 @@ class StandingService(
             standingMapper.toResponse(saved)
         }
     }
+
+    // ADMIN: elle standing satırı ekle
+    @Transactional
+    fun create(request: StandingCreateRequest): StandingResponse {
+        val league = leagueService.getByExternalIdAndSeasonEntity(request.leagueExternalId, request.season)
+        val team = teamService.findByExternalIdOptional(request.teamExternalId)
+            ?: throw TeamNotFoundException("Takım bulunamadı: team=${request.teamExternalId}")
+
+        // (league, team, season) çakışma
+        val exists = standingRepository.findByLeagueIdAndTeamIdAndSeason(league.id!!, team.id!!, request.season) != null
+        if (exists) throw StandingConflictException("Bu sıralama zaten var: league=${request.leagueExternalId} team=${request.teamExternalId} season=${request.season}")
+
+        val standing = standingMapper.toEntity(league, team, request)
+        val saved = standingRepository.save(standing)
+        return standingMapper.toResponse(saved)
+    }
+
 
     // ADMIN: elle güncelleme (partial, manuallyEdited=true)
     @Transactional

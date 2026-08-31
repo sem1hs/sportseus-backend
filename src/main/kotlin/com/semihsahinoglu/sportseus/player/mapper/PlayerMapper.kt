@@ -3,7 +3,7 @@ package com.semihsahinoglu.sportseus.player.mapper
 import com.semihsahinoglu.sportseus.player.dto.PlayerCreateRequest
 import com.semihsahinoglu.sportseus.player.dto.PlayerNode
 import com.semihsahinoglu.sportseus.player.dto.PlayerResponse
-import com.semihsahinoglu.sportseus.player.dto.squad.SquadPlayerNode
+import com.semihsahinoglu.sportseus.squad.dto.squad.SquadPlayerNode
 import com.semihsahinoglu.sportseus.player.entity.Player
 import org.springframework.stereotype.Component
 

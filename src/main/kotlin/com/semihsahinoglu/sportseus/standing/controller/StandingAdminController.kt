@@ -1,9 +1,11 @@
 package com.semihsahinoglu.sportseus.standing.controller
 
 import com.semihsahinoglu.sportseus.common.dto.ApiResponse
+import com.semihsahinoglu.sportseus.standing.dto.StandingCreateRequest
 import com.semihsahinoglu.sportseus.standing.dto.StandingResponse
 import com.semihsahinoglu.sportseus.standing.dto.StandingUpdateRequest
 import com.semihsahinoglu.sportseus.standing.service.StandingService
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -29,6 +31,14 @@ class StandingAdminController(
         val standing = standingService.sync(leagueId, season)
         val response = ApiResponse.success(standing)
         return ResponseEntity.ok(response)
+    }
+
+    // ADMIN: elle ekleme
+    @PostMapping
+    fun create(@RequestBody request: StandingCreateRequest): ResponseEntity<ApiResponse<StandingResponse>> {
+        val standing = standingService.create(request)
+        val response = ApiResponse.success(standing)
+        return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
 
     // ADMIN: elle güncelleme (partial)

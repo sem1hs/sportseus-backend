@@ -1,4 +1,4 @@
-package com.semihsahinoglu.sportseus.player.dto
+package com.semihsahinoglu.sportseus.squad.dto
 
 import java.util.UUID
 

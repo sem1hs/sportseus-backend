@@ -32,4 +32,25 @@ class PlayerTeam(
 
     @Column
     var position: String? = null,
-) : Auditable()
+
+    @Column(name = "manually_edited", nullable = false)
+    var manuallyEdited: Boolean = false,
+
+    @Column(name = "manual_added", nullable = false)
+    var manualAdded: Boolean = false,
+) : Auditable() {
+    fun updateEntity(season: Int?, number: Int?, position: String?) {
+        season?.let { this.season = it }
+        number?.let { this.number = it }
+        position?.let { this.position = it }
+        this.manuallyEdited = true
+    }
+
+    fun addPlayer(player: Player) {
+        this.player = player
+    }
+
+    fun addTeam(team: Team) {
+        this.team = team
+    }
+}

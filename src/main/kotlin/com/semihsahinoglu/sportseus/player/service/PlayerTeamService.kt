@@ -1,17 +1,20 @@
 package com.semihsahinoglu.sportseus.player.service
 
-import com.semihsahinoglu.sportseus.player.dto.PlayerTeamHistoryResponse
-import com.semihsahinoglu.sportseus.player.dto.PlayerTeamTeamSummary
-import com.semihsahinoglu.sportseus.player.dto.SquadResponse
+import com.semihsahinoglu.sportseus.player.dto.PlayerTeamCreateRequest
+import com.semihsahinoglu.sportseus.player.dto.PlayerTeamResponse
+import com.semihsahinoglu.sportseus.player.dto.PlayerTeamUpdateRequest
+import com.semihsahinoglu.sportseus.squad.dto.SquadResponse
 import com.semihsahinoglu.sportseus.player.entity.Player
 import com.semihsahinoglu.sportseus.player.entity.PlayerTeam
+import com.semihsahinoglu.sportseus.player.exception.PlayerTeamConflictException
 import com.semihsahinoglu.sportseus.player.exception.PlayerTeamNotFoundException
 import com.semihsahinoglu.sportseus.player.mapper.PlayerTeamMapper
-import com.semihsahinoglu.sportseus.player.mapper.SquadMapper
+import com.semihsahinoglu.sportseus.squad.mapper.SquadMapper
 import com.semihsahinoglu.sportseus.player.repository.PlayerTeamRepository
 import com.semihsahinoglu.sportseus.team.entity.Team
 import com.semihsahinoglu.sportseus.team.exception.TeamNotFoundException
 import com.semihsahinoglu.sportseus.team.service.TeamService
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -19,6 +22,7 @@ import java.util.UUID
 @Service
 class PlayerTeamService(
     private val teamService: TeamService,
+    private val playerService: PlayerService,
     private val playerTeamRepository: PlayerTeamRepository,
     private val playerTeamMapper: PlayerTeamMapper,
     private val squadMapper: SquadMapper,
@@ -37,7 +41,8 @@ class PlayerTeamService(
         val existing = playerTeamRepository.findByPlayerIdAndTeamIdAndSeason(player.id!!, team.id!!, season)
 
         val entity = if (existing != null) {
-            if (number != null) existing.number = number       // sadece dolu gelince güncelle
+            if (existing.manualAdded || existing.manuallyEdited) return existing   // elle → dokunma
+            if (number != null) existing.number = number
             if (position != null) existing.position = position
             existing
         } else {
@@ -53,6 +58,51 @@ class PlayerTeamService(
         return playerTeamRepository.save(entity)
     }
 
+    // ADMIN: elle üyelik ekle (playerId UUID + teamExternalId, çakışma 409)
+    @Transactional
+    fun create(request: PlayerTeamCreateRequest): PlayerTeamResponse {
+        val player = playerService.findById(request.playerId)
+        val team = teamService.findByExternalIdOptional(request.teamExternalId)
+            ?: throw TeamNotFoundException("Takım bulunamadı: team=${request.teamExternalId}")
+
+        // composite çakışma
+        val exists = playerTeamRepository
+            .findByPlayerIdAndTeamIdAndSeason(player.id!!, team.id!!, request.season) != null
+
+        if (exists) throw PlayerTeamConflictException("Bu üyelik zaten var: player=${request.playerId} team=${request.teamExternalId} season=${request.season}")
+
+        val playerTeam = playerTeamMapper.toEntity(player, team, request)
+        val saved = playerTeamRepository.save(playerTeam)
+        return playerTeamMapper.toResponse(saved)
+    }
+
+    // ADMIN: elle güncelleme (UUID, FK değişimi katı + composite çakışma)
+    @Transactional
+    fun update(id: UUID, request: PlayerTeamUpdateRequest): PlayerTeamResponse {
+        val membership =
+            playerTeamRepository.findById(id).orElseThrow { PlayerTeamNotFoundException("Üyelik bulunamadı: id=$id") }
+
+        request.playerId?.let { pid ->
+            val player = playerService.findById(pid)
+            membership.addPlayer(player)
+        }
+        request.teamExternalId?.let { extId ->
+            val team = teamService.findByExternalIdOptional(extId)
+                ?: throw TeamNotFoundException("Takım bulunamadı: team=$extId")
+            membership.addTeam(team)
+        }
+
+        membership.updateEntity(request.season, request.number, request.position)
+
+        return try {
+            playerTeamMapper.toResponse(playerTeamRepository.saveAndFlush(membership))
+        } catch (e: DataIntegrityViolationException) {
+            throw PlayerTeamConflictException(
+                "Bu güncelleme mevcut bir üyelikle çakışıyor (aynı player+team+season): id=$id"
+            )
+        }
+    }
+
     // ADMIN: player team siler
     @Transactional
     fun deleteById(id: UUID) {
@@ -60,40 +110,19 @@ class PlayerTeamService(
         playerTeamRepository.deleteById(id)
     }
 
-    // METHOD: takım listesi döner
+    // PUBLIC: read, bir oyuncunun tüm üyelikleri (düz, her satır ayrı)
     @Transactional(readOnly = true)
-    fun getSquad(team: Team, season: Int): SquadResponse {
-        val memberships = playerTeamRepository.findAllByTeamIdAndSeason(team.id!!, season)
-        return squadMapper.toResponse(team, season, memberships)
-    }
+    fun getPlayerTeamByPlayerExternalId(playerExternalId: Long): List<PlayerTeamResponse> =
+        playerTeamRepository.findAllByPlayerExternalIdOrderBySeasonDesc(playerExternalId)
+            .map(playerTeamMapper::toResponse)
 
-    // PUBLIC: takım listesi döner
+    // PUBLIC: read, bir oyuncunun tüm üyelikleri (düz, UUID ile)
     @Transactional(readOnly = true)
-    fun getSquadByTeamExternalId(teamExternalId: Long, season: Int): SquadResponse {
-        val team = teamService.findByExternalIdOptional(teamExternalId.toInt())
-            ?: throw TeamNotFoundException("Takım bulunamadı: team=$teamExternalId")
-        return getSquad(team, season)              // mevcut Team-alan overload'a devret
-    }
+    fun getPlayerTeamByPlayerId(playerId: UUID): List<PlayerTeamResponse> =
+        playerTeamRepository.findAllByPlayerIdOrderBySeasonDesc(playerId)
+            .map(playerTeamMapper::toResponse)
 
-    // PUBLIC: read, bir oyuncunun tüm üyelik geçmişi
-    @Transactional(readOnly = true)
-    fun getTeamHistoryByPlayerExternalId(playerExternalId: Long): List<PlayerTeamHistoryResponse> {
-        val memberships = playerTeamRepository.findAllByPlayerExternalIdOrderBySeasonDesc(playerExternalId)
-
-        return memberships
-            .groupBy { it.team.id!! }                       // takıma göre grupla
-            .map { (_, rows) ->
-                val team = rows.first().team
-                PlayerTeamHistoryResponse(
-                    team = PlayerTeamTeamSummary(
-                        id = team.id!!,
-                        externalId = team.externalId.toLong(),
-                        name = team.name,
-                        logoUrl = team.logoUrl,
-                    ),
-                    seasons = rows.map { it.season }.distinct().sortedDescending(),
-                )
-            }
-            .sortedByDescending { it.seasons.first() }        // en güncel sezonu olan takım üstte
-    }
+    // METHOD: takım idsine göre squad bulma
+    fun findAllByTeamIdAndSeason(team: Team, season: Int): List<PlayerTeam> =
+        playerTeamRepository.findAllByTeamIdAndSeason(team.id!!, season)
 }

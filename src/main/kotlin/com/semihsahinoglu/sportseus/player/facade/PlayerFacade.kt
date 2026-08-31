@@ -1,17 +1,13 @@
 package com.semihsahinoglu.sportseus.player.facade
 
-import com.semihsahinoglu.sportseus.league.entity.League
 import com.semihsahinoglu.sportseus.league.service.LeagueService
 import com.semihsahinoglu.sportseus.player.client.PlayerApiClient
 import com.semihsahinoglu.sportseus.player.dto.PlayerResponse
 import com.semihsahinoglu.sportseus.player.dto.PlayerStatisticsResponse
-import com.semihsahinoglu.sportseus.player.dto.PlayerTeamHistoryResponse
 import com.semihsahinoglu.sportseus.player.dto.PlayerTeamResponse
-import com.semihsahinoglu.sportseus.player.dto.SquadResponse
 import com.semihsahinoglu.sportseus.player.exception.MissingReferencesException
 import com.semihsahinoglu.sportseus.player.exception.PlayerNotFoundException
 import com.semihsahinoglu.sportseus.player.service.PlayerService
-import com.semihsahinoglu.sportseus.player.service.PlayerSquadService
 import com.semihsahinoglu.sportseus.player.service.PlayerStatisticsService
 import com.semihsahinoglu.sportseus.player.service.PlayerTeamService
 import com.semihsahinoglu.sportseus.team.entity.Team
@@ -23,7 +19,6 @@ import org.springframework.stereotype.Service
 class PlayerFacade(
     private val playerApiClient: PlayerApiClient,
     private val playerService: PlayerService,
-    private val playerSquadService: PlayerSquadService,
     private val playerStatisticsService: PlayerStatisticsService,
     private val playerTeamService: PlayerTeamService,
     private val teamService: TeamService,
@@ -31,11 +26,11 @@ class PlayerFacade(
 ) {
     private val log = LoggerFactory.getLogger(PlayerFacade::class.java)
 
-    // ── 1) PROFİL ───────────────────────────────────────────
+    // PROFİL ───────────────────────────────────────────
     fun syncProfile(playerExternalId: Long): PlayerResponse =
         playerService.syncProfile(playerExternalId)
 
-    // ── 2) İSTATİSTİK ───────────────────────────────────────
+    // İSTATİSTİK ───────────────────────────────────────
     fun syncStatistics(playerExternalId: Long, season: Int): List<PlayerStatisticsResponse> {
         val apiItem = playerApiClient.fetchPlayerWithStats(playerExternalId, season)
             ?: throw PlayerNotFoundException("API-Football'da oyuncu/istatistik yok: player=$playerExternalId season=$season")
@@ -64,29 +59,8 @@ class PlayerFacade(
         return responses
     }
 
-    // ── 3) KADRO ────────────────────────────────────────────
-    fun syncSquad(teamExternalId: Long, season: Int): SquadResponse {
-        // tek takım — anında çöz, yoksa hemen patlat (toplu rapora gerek yok)
-        val team = teamService.findByExternalIdOptional(teamExternalId.toInt()) ?: throw MissingReferencesException(
-            listOf(teamExternalId), emptyList()
-        )
-
-        val squad = playerApiClient.fetchSquad(teamExternalId)
-            ?: throw PlayerNotFoundException("API-Football'da kadro bulunamadı: team=$teamExternalId")
-
-        squad.players.forEach { node ->
-            try {
-                playerSquadService.syncMember(team, node, season)
-            } catch (e: Exception) {
-                log.warn("Kadro oyuncusu atlandı: player={} sebep={}", node.id, e.message)
-            }
-        }
-
-        return playerTeamService.getSquad(team, season)
-    }
-
-    // ── 4) TAKIM GEÇMİŞİ ────────────────────────────────────
-    fun syncTeamHistory(playerExternalId: Long): List<PlayerTeamHistoryResponse> {
+    // TAKIM GEÇMİŞİ ────────────────────────────────────
+    fun syncTeam(playerExternalId: Long): List<PlayerTeamResponse> {
         // /teams profil taşımaz → player önceden var olmalı
         val player = playerService.getByExternalIdOrThrow(playerExternalId)
         val history = playerApiClient.fetchTeamHistory(playerExternalId)
@@ -112,6 +86,6 @@ class PlayerFacade(
             playerTeamService.ensureMembership(player, teamMap.getValue(teamExternalId), season)
         }
 
-        return playerTeamService.getTeamHistoryByPlayerExternalId(playerExternalId)
+        return playerTeamService.getPlayerTeamByPlayerExternalId(playerExternalId)
     }
 }

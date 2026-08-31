@@ -1,9 +1,11 @@
 package com.semihsahinoglu.sportseus.standing.mapper
 
 import com.semihsahinoglu.sportseus.league.entity.League
+import com.semihsahinoglu.sportseus.standing.dto.StandingCreateRequest
 import com.semihsahinoglu.sportseus.standing.dto.StandingResponse
 import com.semihsahinoglu.sportseus.standing.dto.StandingRowNode
 import com.semihsahinoglu.sportseus.standing.dto.StandingStatsDto
+import com.semihsahinoglu.sportseus.standing.dto.StandingStatsInput
 import com.semihsahinoglu.sportseus.standing.dto.StandingStatsNode
 import com.semihsahinoglu.sportseus.standing.dto.StandingTeamSummary
 import com.semihsahinoglu.sportseus.standing.entity.Standing
@@ -13,6 +15,24 @@ import org.springframework.stereotype.Component
 
 @Component
 class StandingMapper {
+
+    fun toEntity(league: League, team: Team, request: StandingCreateRequest): Standing = Standing(
+        league = league,
+        team = team,
+        season = request.season,
+        rank = request.rank,
+        points = request.points,
+        goalsDiff = request.goalsDiff,
+        group = request.group,
+        form = request.form,
+        status = request.status,
+        description = request.description,
+        all = request.all?.toStats() ?: StandingStats(),
+        home = request.home?.toStats() ?: StandingStats(),
+        away = request.away?.toStats() ?: StandingStats(),
+        manualAdded = true,
+        manuallyEdited = false,
+    )
 
     fun toEntity(node: StandingRowNode, league: League, team: Team, season: Int): Standing =
         Standing(

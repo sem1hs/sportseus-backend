@@ -1,8 +1,8 @@
-package com.semihsahinoglu.sportseus.player.mapper
+package com.semihsahinoglu.sportseus.squad.mapper
 
-import com.semihsahinoglu.sportseus.player.dto.SquadPlayerItem
-import com.semihsahinoglu.sportseus.player.dto.SquadResponse
-import com.semihsahinoglu.sportseus.player.dto.SquadTeamSummary
+import com.semihsahinoglu.sportseus.squad.dto.SquadPlayerItem
+import com.semihsahinoglu.sportseus.squad.dto.SquadResponse
+import com.semihsahinoglu.sportseus.squad.dto.SquadTeamSummary
 import com.semihsahinoglu.sportseus.player.entity.PlayerTeam
 import com.semihsahinoglu.sportseus.team.entity.Team
 import org.springframework.stereotype.Component

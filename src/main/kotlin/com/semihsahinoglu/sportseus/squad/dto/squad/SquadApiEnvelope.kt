@@ -1,4 +1,4 @@
-package com.semihsahinoglu.sportseus.player.dto.squad
+package com.semihsahinoglu.sportseus.squad.dto.squad
 
 data class SquadApiEnvelope(
     val response: List<SquadApiItem> = emptyList(),

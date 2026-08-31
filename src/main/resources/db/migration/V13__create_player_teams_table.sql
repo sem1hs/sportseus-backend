@@ -6,6 +6,8 @@ CREATE TABLE player.player_teams
     season             INTEGER NOT NULL,
     shirt_number       INTEGER,
     position           VARCHAR(255),
+    manually_edited    BOOLEAN NOT NULL DEFAULT FALSE,
+    manual_added       BOOLEAN NOT NULL DEFAULT FALSE,
     created_by         VARCHAR(255),
     created_date       TIMESTAMP,
     last_modified_by   VARCHAR(255),

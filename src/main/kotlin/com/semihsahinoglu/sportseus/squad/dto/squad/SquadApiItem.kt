@@ -1,4 +1,4 @@
-package com.semihsahinoglu.sportseus.player.dto.squad
+package com.semihsahinoglu.sportseus.squad.dto.squad
 
 import com.semihsahinoglu.sportseus.player.dto.TeamRefNode
 
