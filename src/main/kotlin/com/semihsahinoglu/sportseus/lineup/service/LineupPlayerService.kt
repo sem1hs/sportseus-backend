@@ -22,13 +22,13 @@ class LineupPlayerService(
     // ADMIN: oyuncu güncelle (number/position/isStarter) + lineup manuallyEdited
     @Transactional
     fun updatePlayer(
-        fixtureExternalId: Long,
+        fixtureId: UUID,
         teamExternalId: Int,
         lineupPlayerId: UUID,
         request: LineupPlayerUpdateRequest,
     ): LineupResponse {
-        val lineup = fixtureLineupRepository.findByFixtureExternalIdAndTeamExternalId(fixtureExternalId, teamExternalId)
-            ?: throw LineupNotFoundException("Lineup bulunamadı: fixture=$fixtureExternalId team=$teamExternalId")
+        val lineup = fixtureLineupRepository.findByFixtureIdAndTeamExternalId(fixtureId, teamExternalId)
+            ?: throw LineupNotFoundException("Lineup bulunamadı: fixture=$fixtureId team=$teamExternalId")
 
         val player = lineupPlayerRepository.findByIdAndLineupId(lineupPlayerId, lineup.id!!)
             ?: throw LineupNotFoundException("Oyuncu bu lineup'ta yok: player=$lineupPlayerId")
@@ -43,35 +43,27 @@ class LineupPlayerService(
     // ADMIN: lineup'a oyuncu ekle + manuallyEdited
     @Transactional
     fun addPlayer(
-        fixtureExternalId: Long,
+        fixtureId: UUID,
         teamExternalId: Int,
         request: LineupPlayerAddRequest,
     ): LineupResponse {
-        val lineup = fixtureLineupRepository.findByFixtureExternalIdAndTeamExternalId(fixtureExternalId, teamExternalId)
-            ?: throw LineupNotFoundException("Lineup bulunamadı: fixture=$fixtureExternalId team=$teamExternalId")
+        val lineup = fixtureLineupRepository.findByFixtureIdAndTeamExternalId(fixtureId, teamExternalId)
+            ?: throw LineupNotFoundException("Lineup bulunamadı: fixture=$fixtureId team=$teamExternalId")
         // aynı oyuncu zaten var mı? (aynı playerExternalId iki kez eklenmesin)
         val alreadyExists = lineup.players.any { it.playerExternalId == request.playerExternalId }
         if (alreadyExists) throw LineupPlayerConflictException("Oyuncu zaten bu lineup'ta: player=${request.playerExternalId}")
 
-        lineup.players.add(
-            LineupPlayer(
-                lineup = lineup,
-                playerExternalId = request.playerExternalId,
-                playerName = request.name,
-                number = request.number,
-                position = request.position,
-                isStarter = request.isStarter,
-            )
-        )
+        val player = lineupMapper.toPlayerEntity(lineup, request)
+        lineup.addPlayer(player)
         lineup.makeManuallyEdited()    // sync artık dokunmaz
         return lineupMapper.toResponse(fixtureLineupRepository.save(lineup))
     }
 
     // ADMIN: lineup'tan oyuncu sil + lineup manuallyEdited
     @Transactional
-    fun deletePlayer(fixtureExternalId: Long, teamExternalId: Int, lineupPlayerId: UUID) {
-        val lineup = fixtureLineupRepository.findByFixtureExternalIdAndTeamExternalId(fixtureExternalId, teamExternalId)
-            ?: throw LineupNotFoundException("Lineup bulunamadı: fixture=$fixtureExternalId team=$teamExternalId")
+    fun deletePlayer(fixtureId: UUID, teamExternalId: Int, lineupPlayerId: UUID) {
+        val lineup = fixtureLineupRepository.findByFixtureIdAndTeamExternalId(fixtureId, teamExternalId)
+            ?: throw LineupNotFoundException("Lineup bulunamadı: fixture=$fixtureId team=$teamExternalId")
 
         val player = lineupPlayerRepository.findByIdAndLineupId(lineupPlayerId, lineup.id!!)
             ?: throw LineupNotFoundException("Oyuncu bu lineup'ta yok: player=$lineupPlayerId")

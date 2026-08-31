@@ -191,8 +191,14 @@ class FixtureService(
 
     // METHOD: tek maç detayı, entity
     @Transactional(readOnly = true)
-    fun getByExternalIdEntity(externalId: Long): Fixture = fixtureRepository.findWithRelationsByExternalId(externalId)
-        ?: throw FixtureNotFoundException("Maç bulunamadı: fixture=$externalId")
+    fun getByIdEntity(id: UUID): Fixture =
+        fixtureRepository.findById(id).orElseThrow { throw FixtureNotFoundException("Fikstür bulunamadı ${id}") }
+
+    // METHOD: tek maç detayı, entity
+    @Transactional(readOnly = true)
+    fun getByExternalIdEntity(externalId: Long): Fixture =
+        fixtureRepository.findWithRelationsByExternalId(externalId)
+            ?: throw FixtureNotFoundException("Maç bulunamadı: fixture=$externalId")
 
     // ADMIN: tekil silme
     @Transactional

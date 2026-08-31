@@ -3,6 +3,8 @@ package com.semihsahinoglu.sportseus.lineup.mapper
 import com.semihsahinoglu.sportseus.fixture.entity.Fixture
 import com.semihsahinoglu.sportseus.lineup.dto.LineupApiItem
 import com.semihsahinoglu.sportseus.lineup.dto.LineupCoachSummary
+import com.semihsahinoglu.sportseus.lineup.dto.LineupCreateRequest
+import com.semihsahinoglu.sportseus.lineup.dto.LineupPlayerAddRequest
 import com.semihsahinoglu.sportseus.lineup.dto.LineupPlayerInput
 import com.semihsahinoglu.sportseus.lineup.dto.LineupPlayerItem
 import com.semihsahinoglu.sportseus.lineup.dto.LineupPlayerNode
@@ -32,6 +34,16 @@ class LineupMapper {
             coachPhoto = item.coach?.photo,
         )
 
+    fun toEntity(fixture: Fixture, team: Team, request: LineupCreateRequest): FixtureLineup = FixtureLineup(
+        fixture = fixture,
+        team = team,
+        formation = request.formation,
+        coachExternalId = request.coachExternalId,
+        coachName = request.coachName,
+        coachPhoto = request.coachPhoto,
+        manualAdded = true,
+    )
+
     fun applyApiData(target: FixtureLineup, item: LineupApiItem) {
         target.formation = item.formation
         target.coachExternalId = item.coach?.id
@@ -58,6 +70,15 @@ class LineupMapper {
             position = input.position,
             isStarter = isStarter,
         )
+
+    fun toPlayerEntity(lineup: FixtureLineup, request: LineupPlayerAddRequest): LineupPlayer = LineupPlayer(
+        lineup = lineup,
+        playerExternalId = request.playerExternalId,
+        playerName = request.name,
+        number = request.number,
+        position = request.position,
+        isStarter = request.isStarter,
+    )
 
     fun applyManualUpdate(target: FixtureLineup, request: LineupUpdateRequest) {
         request.formation?.let { target.formation = it }

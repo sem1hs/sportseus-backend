@@ -40,11 +40,18 @@ class FixtureLineup(
     var players: MutableList<LineupPlayer> = mutableListOf(),
 
     @Column(name = "manually_edited", nullable = false)
-    var manuallyEdited: Boolean = false
+    var manuallyEdited: Boolean = false,
+
+    @Column(name = "manual_added", nullable = false)
+    var manualAdded: Boolean = false
 
 ) : Auditable() {
 
     fun makeManuallyEdited() {
         this.manuallyEdited = true
+    }
+
+    fun addPlayer(player: LineupPlayer) {
+        this.players.add(player)
     }
 }

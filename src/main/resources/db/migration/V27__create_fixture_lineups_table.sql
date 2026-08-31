@@ -11,6 +11,8 @@ CREATE TABLE lineup.fixture_lineups
     coach_name         VARCHAR(150),
     coach_photo        TEXT,
 
+    manual_added       BOOLEAN NOT NULL DEFAULT FALSE,
+
     created_by         VARCHAR(255),
     created_date       TIMESTAMP,
     last_modified_by   VARCHAR(255),

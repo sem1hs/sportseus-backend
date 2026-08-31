@@ -15,9 +15,13 @@ interface FixtureLineupRepository : JpaRepository<FixtureLineup, UUID> {
 
     // READ: bir maçın iki dizilişi (home + away), oyuncular + team yüklü
     @EntityGraph(attributePaths = ["team", "players"])
-    fun findAllByFixtureExternalId(fixtureExternalId: Long): List<FixtureLineup>
+    fun findAllByFixtureId(fixtureId: UUID): List<FixtureLineup>
 
     // READ: tek lineup (fixture + team), oyuncular yüklü
     @EntityGraph(attributePaths = ["team", "players"])
     fun findByFixtureExternalIdAndTeamExternalId(fixtureExternalId: Long, teamExternalId: Int): FixtureLineup?
+
+    // READ: tek lineup (fixture + team), oyuncular yüklü
+    @EntityGraph(attributePaths = ["team", "players"])
+    fun findByFixtureIdAndTeamExternalId(fixtureId: UUID, teamExternalId: Int): FixtureLineup?
 }
