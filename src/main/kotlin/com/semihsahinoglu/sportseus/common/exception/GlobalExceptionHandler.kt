@@ -15,6 +15,8 @@ import com.semihsahinoglu.sportseus.league.exception.LeagueNotFoundInApiExceptio
 import com.semihsahinoglu.sportseus.lineup.exception.LineupConflictException
 import com.semihsahinoglu.sportseus.lineup.exception.LineupNotFoundException
 import com.semihsahinoglu.sportseus.lineup.exception.LineupPlayerConflictException
+import com.semihsahinoglu.sportseus.news.exception.NewsNotFoundException
+import com.semihsahinoglu.sportseus.news.exception.NewsSlugConflictException
 import com.semihsahinoglu.sportseus.player.exception.MissingReferencesException
 import com.semihsahinoglu.sportseus.player.exception.PlayerNotFoundException
 import com.semihsahinoglu.sportseus.player.exception.PlayerStatisticsConflictException
@@ -504,6 +506,32 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         return ErrorResponse.buildErrorResponse(
             HttpStatus.CONFLICT,
             "Team Statistics Conflict",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(NewsSlugConflictException::class)
+    fun NewsSlugConflictException(
+        ex: NewsSlugConflictException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.CONFLICT,
+            "News Slug Conflict",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(NewsNotFoundException::class)
+    fun NewsNotFoundException(
+        ex: NewsNotFoundException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.NOT_FOUND,
+            "News Not Found",
             ex.message,
             request.requestURI
         )
