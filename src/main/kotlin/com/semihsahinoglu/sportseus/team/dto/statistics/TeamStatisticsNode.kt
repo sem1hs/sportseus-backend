@@ -3,8 +3,6 @@ package com.semihsahinoglu.sportseus.team.dto.statistics
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class TeamStatisticsNode(
-    val league: StatLeague? = null,
-    val team: StatTeam? = null,
     val form: String? = null,
     val fixtures: StatFixtures? = null,
     val goals: StatGoals? = null,

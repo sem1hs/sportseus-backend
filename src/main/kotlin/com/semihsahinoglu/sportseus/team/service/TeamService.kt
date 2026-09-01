@@ -4,12 +4,11 @@ import com.semihsahinoglu.sportseus.league.service.LeagueService
 import com.semihsahinoglu.sportseus.team.client.TeamApiClient
 import com.semihsahinoglu.sportseus.team.dto.TeamApiItem
 import com.semihsahinoglu.sportseus.team.dto.TeamResponse
-import com.semihsahinoglu.sportseus.team.entity.LeagueTeam
+import com.semihsahinoglu.sportseus.team.dto.TeamUpdateRequest
 import com.semihsahinoglu.sportseus.team.entity.Team
 import com.semihsahinoglu.sportseus.venue.entity.Venue
 import com.semihsahinoglu.sportseus.team.exception.TeamNotFoundException
 import com.semihsahinoglu.sportseus.team.mapper.TeamMapper
-import com.semihsahinoglu.sportseus.team.repository.LeagueTeamRepository
 import com.semihsahinoglu.sportseus.team.repository.TeamRepository
 import com.semihsahinoglu.sportseus.venue.service.VenueService
 import org.springframework.stereotype.Service
@@ -21,7 +20,7 @@ class TeamService(
     private val teamApiClient: TeamApiClient,
     private val teamRepository: TeamRepository,
     private val venueService: VenueService,
-    private val leagueTeamRepository: LeagueTeamRepository,
+    private val leagueTeamService: LeagueTeamService,
     private val leagueService: LeagueService,
     private val teamMapper: TeamMapper,
 ) {
@@ -59,11 +58,6 @@ class TeamService(
         return teamMapper.toResponse(team)
     }
 
-    // PUBLIC: ligin takımları (venue'ler join fetch ile)
-    @Transactional(readOnly = true)
-    fun getTeamsByLeague(leagueId: UUID, season: Int): List<TeamResponse> =
-        leagueTeamRepository.findTeamsByLeagueIdAndSeason(leagueId, season).map(teamMapper::toResponse)
-
     // METHOD: externalId'den find
     fun findByExternalId(externalId: Int): Team =
         teamRepository.findByExternalId(externalId) ?: throw TeamNotFoundException("Takım bulunamadı: $externalId")
@@ -81,20 +75,41 @@ class TeamService(
         // b. TEAM upsert
         val existingTeam = teamRepository.findByExternalId(item.team.id)
         val team = if (existingTeam != null) {
-            teamMapper.applyApiData(existingTeam, item.team, venue)
-            teamRepository.save(existingTeam)
+            if (existingTeam.manuallyEdited) existingTeam
+            else {
+                teamMapper.applyApiData(existingTeam, item.team, venue)
+                teamRepository.save(existingTeam)
+            }
         } else {
             teamRepository.save(teamMapper.toEntity(item.team, venue))
         }
 
         // c. LEAGUE_TEAMS ilişkisi (yoksa ekle — duplicate önleme)
-        val existingRelation = leagueTeamRepository.findByLeagueIdAndTeamIdAndSeason(leagueId, team.id!!, season)
+        val existingRelation = leagueTeamService.findByLeagueIdAndTeamIdAndSeason(leagueId, team.id!!, season)
         if (existingRelation == null) {
             val league = leagueService.getReferenceById(leagueId)   // proxy, ekstra sorgu yok
-            leagueTeamRepository.save(LeagueTeam(league = league, team = team, season = season))
+            leagueTeamService.createLeagueTeam(league, team, season)
         }
 
         return teamMapper.toResponse(team)
+    }
+
+    // ADMIN: elle güncelleme (partial, manuallyEdited=true)
+    @Transactional
+    fun update(teamExternalId: Int, request: TeamUpdateRequest): TeamResponse {
+        val team = teamRepository.findByExternalId(teamExternalId)
+            ?: throw TeamNotFoundException("Takım bulunamadı: $teamExternalId")
+
+        team.applyManualUpdate(
+            name = request.name,
+            code = request.code,
+            country = request.country,
+            founded = request.founded,
+            national = request.national,
+            logoUrl = request.logoUrl,
+        )
+
+        return teamMapper.toResponse(teamRepository.save(team))
     }
 
     // ADMIN: takıma elle venue bağla/güncelle (fixture'da venue null gelince)

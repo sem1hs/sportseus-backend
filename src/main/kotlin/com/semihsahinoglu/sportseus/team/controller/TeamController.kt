@@ -23,15 +23,4 @@ class TeamController(
         val response = ApiResponse.success(team)
         return ResponseEntity.ok(response)
     }
-
-    // Ligin takımları — league UUID + season ile
-    @GetMapping("/by-league/{leagueId}")
-    fun getTeamsByLeague(
-        @PathVariable leagueId: UUID,
-        @RequestParam season: Int
-    ): ResponseEntity<ApiResponse<List<TeamResponse>>> {
-        val teamsByLeague = teamService.getTeamsByLeague(leagueId, season)
-        val response = ApiResponse.success(teamsByLeague)
-        return ResponseEntity.ok(response)
-    }
 }

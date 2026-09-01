@@ -36,8 +36,28 @@ class Team(
     @JoinColumn(name = "venue_id")   // nullable — milli takım/venue'siz takım
     var venue: Venue? = null,
 
-    ) : Auditable() {
+    @Column(name = "manually_edited", nullable = false)
+    var manuallyEdited: Boolean = false
+
+) : Auditable() {
     fun applyVenue(venue: Venue) {
         this.venue = venue
+    }
+
+    fun applyManualUpdate(
+        name: String?,
+        code: String?,
+        country: String?,
+        founded: Int?,
+        national: Boolean?,
+        logoUrl: String?,
+    ) {
+        name?.let { this.name = it }
+        code?.let { this.code = it }
+        country?.let { this.country = it }
+        founded?.let { this.founded = it }
+        national?.let { this.national = it }
+        logoUrl?.let { this.logoUrl = it }
+        this.manuallyEdited = true
     }
 }

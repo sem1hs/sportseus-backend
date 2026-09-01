@@ -28,6 +28,25 @@ class TeamStatistics(
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "stats", columnDefinition = "jsonb", nullable = false)
-    var stats: String
+    var stats: String,
 
-) : Auditable()
+    @Column(name = "manually_edited", nullable = false)
+    var manuallyEdited: Boolean = false,
+
+    @Column(name = "manual_added", nullable = false)
+    var manualAdded: Boolean = false
+
+) : Auditable() {
+    fun applyManualUpdate(
+        team: Team?,
+        league: League?,
+        season: Int?,
+        mergedStats: String?,     // service merge edip verir
+    ) {
+        team?.let { this.team = it }
+        league?.let { this.league = it }
+        season?.let { this.season = it }
+        mergedStats?.let { this.stats = it }
+        this.manuallyEdited = true
+    }
+}

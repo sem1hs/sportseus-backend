@@ -9,7 +9,7 @@ CREATE TABLE team.teams
     national           BOOLEAN      NOT NULL DEFAULT FALSE,
     logo_url           VARCHAR(500),
     venue_id           UUID,
-
+    manually_edited    BOOLEAN      NOT NULL DEFAULT FALSE,
     created_by         VARCHAR(255),
     created_date       TIMESTAMP,
     last_modified_by   VARCHAR(255),

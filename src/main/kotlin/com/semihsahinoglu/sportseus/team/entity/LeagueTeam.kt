@@ -8,9 +8,16 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 
 @Entity
-@Table(schema = "team", name = "league_teams")
+@Table(
+    schema = "team",
+    name = "league_teams",
+    uniqueConstraints = [
+        UniqueConstraint(name = "uq_league_team_season", columnNames = ["league_id", "team_id", "season"])
+    ]
+)
 class LeagueTeam(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "league_id", nullable = false)
@@ -22,4 +29,21 @@ class LeagueTeam(
 
     @Column(nullable = false)
     var season: Int,
-) : Auditable()
+
+    @Column(name = "manually_edited", nullable = false)
+    var manuallyEdited: Boolean = false,
+
+    @Column(name = "manual_added", nullable = false)
+    var manualAdded: Boolean = false
+) : Auditable() {
+    fun applyManualUpdate(
+        league: League?,
+        team: Team?,
+        season: Int?
+    ) {
+        league?.let { this.league = it }
+        team?.let { this.team = it }
+        season?.let { this.season = it }
+        this.manuallyEdited = true
+    }
+}

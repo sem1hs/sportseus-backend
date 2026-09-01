@@ -5,6 +5,8 @@ CREATE TABLE team.team_statistics
     league_id          UUID    NOT NULL,
     season             INTEGER NOT NULL,
     stats              JSONB   NOT NULL,
+    manually_edited    BOOLEAN NOT NULL DEFAULT FALSE,
+    manual_added       BOOLEAN NOT NULL DEFAULT FALSE,
     created_by         VARCHAR(255),
     created_date       TIMESTAMP,
     last_modified_by   VARCHAR(255),

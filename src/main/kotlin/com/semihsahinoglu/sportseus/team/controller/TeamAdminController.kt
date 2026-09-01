@@ -2,13 +2,16 @@ package com.semihsahinoglu.sportseus.team.controller
 
 import com.semihsahinoglu.sportseus.common.dto.ApiResponse
 import com.semihsahinoglu.sportseus.team.dto.TeamResponse
+import com.semihsahinoglu.sportseus.team.dto.TeamUpdateRequest
 import com.semihsahinoglu.sportseus.team.service.TeamService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -49,6 +52,16 @@ class TeamAdminController(
         @PathVariable venueExternalId: Int,
     ): ResponseEntity<ApiResponse<TeamResponse>> {
         val team = teamService.updateTeamVenue(teamExternalId, venueExternalId)
+        val response = ApiResponse.success(team)
+        return ResponseEntity.ok(response)
+    }
+
+    @PatchMapping("/{externalId}")
+    fun update(
+        @PathVariable externalId: Int,
+        @RequestBody request: TeamUpdateRequest
+    ): ResponseEntity<ApiResponse<TeamResponse>> {
+        val team = teamService.update(externalId, request)
         val response = ApiResponse.success(team)
         return ResponseEntity.ok(response)
     }

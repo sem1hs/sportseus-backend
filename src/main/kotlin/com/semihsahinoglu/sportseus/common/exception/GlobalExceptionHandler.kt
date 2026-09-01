@@ -4,6 +4,7 @@ import com.semihsahinoglu.sportseus.auth.exception.AuthenticationFailedException
 import com.semihsahinoglu.sportseus.auth.exception.InvalidRefreshTokenException
 import com.semihsahinoglu.sportseus.auth.exception.RefreshTokenDoesntBelongUserException
 import com.semihsahinoglu.sportseus.auth.exception.RefreshTokenNotFoundException
+import com.semihsahinoglu.sportseus.coach.exception.CoachCareerConflictException
 import com.semihsahinoglu.sportseus.coach.exception.CoachNotFoundException
 import com.semihsahinoglu.sportseus.common.dto.ApiResponse
 import com.semihsahinoglu.sportseus.fixture.exception.FixtureMissingReferencesException
@@ -11,14 +12,21 @@ import com.semihsahinoglu.sportseus.fixture.exception.FixtureNotFoundException
 import com.semihsahinoglu.sportseus.league.exception.LeagueAlreadyExistsException
 import com.semihsahinoglu.sportseus.league.exception.LeagueNotFoundException
 import com.semihsahinoglu.sportseus.league.exception.LeagueNotFoundInApiException
+import com.semihsahinoglu.sportseus.lineup.exception.LineupConflictException
 import com.semihsahinoglu.sportseus.lineup.exception.LineupNotFoundException
 import com.semihsahinoglu.sportseus.lineup.exception.LineupPlayerConflictException
 import com.semihsahinoglu.sportseus.player.exception.MissingReferencesException
 import com.semihsahinoglu.sportseus.player.exception.PlayerNotFoundException
+import com.semihsahinoglu.sportseus.player.exception.PlayerStatisticsConflictException
 import com.semihsahinoglu.sportseus.player.exception.PlayerStatisticsNotFoundException
+import com.semihsahinoglu.sportseus.player.exception.PlayerTeamConflictException
 import com.semihsahinoglu.sportseus.player.exception.PlayerTeamNotFoundException
+import com.semihsahinoglu.sportseus.standing.exception.StandingConflictException
 import com.semihsahinoglu.sportseus.standing.exception.StandingNotFoundException
+import com.semihsahinoglu.sportseus.team.exception.LeagueTeamConflictException
+import com.semihsahinoglu.sportseus.team.exception.LeagueTeamNotFoundException
 import com.semihsahinoglu.sportseus.team.exception.TeamNotFoundException
+import com.semihsahinoglu.sportseus.team.exception.TeamStatisticsConflictException
 import com.semihsahinoglu.sportseus.team.exception.TeamStatisticsNotFoundException
 import com.semihsahinoglu.sportseus.transfer.exception.TransferConflictException
 import com.semihsahinoglu.sportseus.transfer.exception.TransferNotFoundException
@@ -392,6 +400,110 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         return ErrorResponse.buildErrorResponse(
             HttpStatus.NOT_FOUND,
             "Standing Not Found",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(CoachCareerConflictException::class)
+    fun CoachCareerConflictException(
+        ex: CoachCareerConflictException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.CONFLICT,
+            "Coach Career Conflict",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(LineupConflictException::class)
+    fun LineupConflictException(
+        ex: LineupConflictException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.CONFLICT,
+            "Lineup Conflict",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(PlayerStatisticsConflictException::class)
+    fun PlayerStatisticsConflictException(
+        ex: PlayerStatisticsConflictException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.CONFLICT,
+            "Player Statistics Conflict",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(PlayerTeamConflictException::class)
+    fun PlayerTeamConflictException(
+        ex: PlayerTeamConflictException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.CONFLICT,
+            "Player Team Conflict",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(StandingConflictException::class)
+    fun StandingConflictException(
+        ex: StandingConflictException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.CONFLICT,
+            "Standing Conflict",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(LeagueTeamConflictException::class)
+    fun LeagueTeamConflictException(
+        ex: LeagueTeamConflictException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.CONFLICT,
+            "League Team Conflict",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(LeagueTeamNotFoundException::class)
+    fun LeagueTeamNotFoundException(
+        ex: LeagueTeamNotFoundException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.NOT_FOUND,
+            "League Team Not Found",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(TeamStatisticsConflictException::class)
+    fun TeamStatisticsConflictException(
+        ex: TeamStatisticsConflictException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.CONFLICT,
+            "Team Statistics Conflict",
             ex.message,
             request.requestURI
         )

@@ -18,13 +18,24 @@ class TeamStatisticsController(
     private val teamStatisticsService: TeamStatisticsService
 ) {
     // GET /teams/statistics/{teamId}?league={leagueId}&season=2024
-    @GetMapping("/{teamId}")
-    fun getStatistics(
+    @GetMapping("/{teamId}/league/{leagueId}")
+    fun getStatisticsByLeagueId(
         @PathVariable teamId: UUID,
-        @RequestParam leagueId: UUID,
+        @PathVariable leagueId: UUID,
         @RequestParam season: Int,
     ): ResponseEntity<ApiResponse<TeamStatisticsResponse>> {
         val teamStatistic = teamStatisticsService.getStatistics(teamId, leagueId, season)
+        val response = ApiResponse.success(teamStatistic)
+        return ResponseEntity.ok(response)
+    }
+
+    // GET /teams/statistics/{teamId}?league={leagueId}&season=2024
+    @GetMapping("/{teamId}")
+    fun getStatistics(
+        @PathVariable teamId: UUID,
+        @RequestParam season: Int,
+    ): ResponseEntity<ApiResponse<TeamStatisticsResponse>> {
+        val teamStatistic = teamStatisticsService.getStatistics(teamId, season)
         val response = ApiResponse.success(teamStatistic)
         return ResponseEntity.ok(response)
     }
