@@ -25,6 +25,7 @@ class NewsMapper {
         category = request.category,
         status = NewsStatus.DRAFT,
         breaking = request.breaking,
+        featured = request.featured,
         author = author,
     )
 
@@ -47,6 +48,7 @@ class NewsMapper {
             category = news.category,
             status = news.status,
             breaking = news.breaking,
+            featured = news.featured,
             publishDate = news.publishDate,
             author = toAuthorSummary(news),
             relations = news.relations.map(::toRelationResponse),
@@ -62,6 +64,7 @@ class NewsMapper {
             category = news.category,
             status = news.status,
             breaking = news.breaking,
+            featured = news.featured,
             publishDate = news.publishDate,
             author = toAuthorSummary(news),
             tags = news.tags.map(::toTagResponse).sortedBy { it.name },

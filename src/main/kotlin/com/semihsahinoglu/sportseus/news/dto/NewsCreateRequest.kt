@@ -11,6 +11,7 @@ data class NewsCreateRequest(
     val category: NewsCategory,
     val status: NewsStatus = NewsStatus.DRAFT,
     val breaking: Boolean = false,
+    val featured: Boolean = false,
     val relations: List<NewsRelationInput> = emptyList(),
     val tags: List<String> = emptyList(),
 )

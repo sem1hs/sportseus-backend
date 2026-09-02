@@ -31,6 +31,13 @@ class NewsController(
         return ResponseEntity.ok(ApiResponse.success(news))
     }
 
+    // PUBLIC: son dakika
+    @GetMapping("/featured")
+    fun getFeatured(pageable: Pageable): ResponseEntity<ApiResponse<Page<NewsListItemResponse>>> {
+        val news = newsService.getFeatured(pageable)
+        return ResponseEntity.ok(ApiResponse.success(news))
+    }
+
     // PUBLIC: kategoriye göre
     @GetMapping("/categories/{category}")
     fun getByCategory(

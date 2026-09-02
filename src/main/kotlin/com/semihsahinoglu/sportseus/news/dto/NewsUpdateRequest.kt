@@ -11,6 +11,7 @@ data class NewsUpdateRequest(
     val category: NewsCategory? = null,
     val status: NewsStatus? = null,
     val breaking: Boolean? = null,
+    val featured: Boolean? = null,
     val relations: List<NewsRelationInput>? = null,
     val tags: List<String>? = null,
 )

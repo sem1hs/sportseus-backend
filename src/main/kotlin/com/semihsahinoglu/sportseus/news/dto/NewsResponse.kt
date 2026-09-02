@@ -14,6 +14,7 @@ data class NewsResponse(
     val category: NewsCategory,
     val status: NewsStatus,
     val breaking: Boolean,
+    val featured: Boolean,
     val publishDate: LocalDateTime?,
     val author: NewsAuthorSummary,
     val relations: List<NewsRelationResponse>,

@@ -65,7 +65,8 @@ class NewsService(
             request.imageUrl,
             request.category,
             request.breaking,
-            request.status
+            request.status,
+            request.featured
         )
         // relations replace (verilmişse)
         request.relations?.let { inputs ->
@@ -107,6 +108,12 @@ class NewsService(
     @Transactional(readOnly = true)
     fun getBreaking(pageable: Pageable): Page<NewsListItemResponse> =
         newsRepository.findAllByStatusAndBreakingTrueOrderByPublishDateDesc(NewsStatus.PUBLISHED, pageable)
+            .map(newsMapper::toListItem)
+
+    // PUBLIC: featured
+    @Transactional(readOnly = true)
+    fun getFeatured(pageable: Pageable): Page<NewsListItemResponse> =
+        newsRepository.findAllByStatusAndFeaturedTrueOrderByPublishDateDesc(NewsStatus.PUBLISHED, pageable)
             .map(newsMapper::toListItem)
 
     // PUBLIC: bir entity'ye bağlı haberler (snapshot)

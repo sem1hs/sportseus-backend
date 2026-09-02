@@ -42,6 +42,10 @@ interface NewsRepository : JpaRepository<News, UUID> {
     @EntityGraph(attributePaths = ["author", "tags"])
     fun findAllByStatusAndBreakingTrueOrderByPublishDateDesc(status: NewsStatus, pageable: Pageable): Page<News>
 
+    // PUBLIC: featured + yayında
+    @EntityGraph(attributePaths = ["author", "tags"])
+    fun findAllByStatusAndFeaturedTrueOrderByPublishDateDesc(status: NewsStatus, pageable: Pageable): Page<News>
+
     // PUBLIC: bir entity'ye bağlı haberler (snapshot üzerinden — "Trabzonspor haberleri")
     @EntityGraph(attributePaths = ["author", "tags"])
     @Query(

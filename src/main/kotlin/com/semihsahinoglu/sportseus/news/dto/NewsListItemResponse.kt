@@ -13,6 +13,7 @@ data class NewsListItemResponse(
     val category: NewsCategory,
     val status: NewsStatus,
     val breaking: Boolean,
+    val featured: Boolean,
     val publishDate: LocalDateTime?,
     val author: NewsAuthorSummary,
     val tags: List<TagResponse>,

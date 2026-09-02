@@ -53,6 +53,10 @@ class News(
         inverseJoinColumns = [JoinColumn(name = "tag_id")],
     )
     var tags: MutableSet<Tag> = mutableSetOf(),
+
+    @Column(nullable = false)
+    var featured: Boolean = false
+
 ) : Auditable() {
     fun changeStatus(newStatus: NewsStatus) {
         if (newStatus == NewsStatus.PUBLISHED && this.publishDate == null) this.publishDate = LocalDateTime.now()
@@ -65,7 +69,8 @@ class News(
         imageUrl: String?,
         category: NewsCategory?,
         breaking: Boolean?,
-        status: NewsStatus?
+        status: NewsStatus?,
+        featured: Boolean?,
     ) {
         title?.let { this.title = it }
         content?.let { this.content = it }
@@ -73,5 +78,6 @@ class News(
         category?.let { this.category = it }
         breaking?.let { this.breaking = it }
         status?.let { this.changeStatus(it) }
+        featured?.let { this.featured = it }
     }
 }
