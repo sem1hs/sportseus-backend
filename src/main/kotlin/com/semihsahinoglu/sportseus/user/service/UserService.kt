@@ -1,5 +1,6 @@
 package com.semihsahinoglu.sportseus.user.service
 
+import com.semihsahinoglu.sportseus.user.dto.UserResponse
 import com.semihsahinoglu.sportseus.user.entity.User
 import com.semihsahinoglu.sportseus.user.exception.UserNotFoundException
 import com.semihsahinoglu.sportseus.user.repository.UserRepository
@@ -28,5 +29,11 @@ class UserService(
         val user = getById(userId)
         user.markDeleted()
         userRepository.save(user)
+    }
+
+    fun getMe(userId: UUID?): UserResponse {
+        requireNotNull(userId) { "User Id cannot be null" }
+        val user = getById(userId)
+        return UserResponse(user.email, user.displayName, user.role)
     }
 }
