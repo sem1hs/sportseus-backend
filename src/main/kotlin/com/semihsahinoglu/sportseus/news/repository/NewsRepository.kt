@@ -23,7 +23,7 @@ interface NewsRepository : JpaRepository<News, UUID> {
     fun findBySlug(slug: String): News?
 
     // ADMIN: id ile (ilişkiler yüklü)
-    @EntityGraph(attributePaths = ["author", "relations", "tags"])
+    @EntityGraph(attributePaths = ["author", "relations"])
     fun findWithRelationsById(id: UUID): News?
 
     // PUBLIC: yayındaki haberler (sayfalı, en yeni önce)

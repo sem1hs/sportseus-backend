@@ -1,11 +1,13 @@
 package com.semihsahinoglu.sportseus.team.service
 
+import com.semihsahinoglu.sportseus.fixture.repository.FixtureRepository
 import com.semihsahinoglu.sportseus.league.service.LeagueService
 import com.semihsahinoglu.sportseus.team.client.TeamApiClient
 import com.semihsahinoglu.sportseus.team.dto.TeamApiItem
 import com.semihsahinoglu.sportseus.team.dto.TeamResponse
 import com.semihsahinoglu.sportseus.team.dto.TeamUpdateRequest
 import com.semihsahinoglu.sportseus.team.entity.Team
+import com.semihsahinoglu.sportseus.team.exception.TeamHasFixturesException
 import com.semihsahinoglu.sportseus.venue.entity.Venue
 import com.semihsahinoglu.sportseus.team.exception.TeamNotFoundException
 import com.semihsahinoglu.sportseus.team.mapper.TeamMapper
@@ -22,6 +24,7 @@ class TeamService(
     private val venueService: VenueService,
     private val leagueTeamService: LeagueTeamService,
     private val leagueService: LeagueService,
+    private val fixtureRepository: FixtureRepository,
     private val teamMapper: TeamMapper,
 ) {
     // ADMIN: ligin tüm takımlarını senkronla
@@ -47,6 +50,11 @@ class TeamService(
     @Transactional
     fun deleteTeam(id: UUID) {
         if (!teamRepository.existsById(id)) throw TeamNotFoundException("Takım bulunamadı: $id")
+        if (fixtureRepository.existsByHomeTeamIdOrAwayTeamId(
+                id,
+                id
+            )
+        ) throw TeamHasFixturesException("Bu takımın maçları var, önce onları silmelisin")
         teamRepository.deleteById(id)
     }
 

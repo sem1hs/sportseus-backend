@@ -80,4 +80,10 @@ class News(
         status?.let { this.changeStatus(it) }
         featured?.let { this.featured = it }
     }
+
+    fun replaceRelations(newRelations: List<NewsRelation>) {
+        this.relations.clear()
+        newRelations.forEach { it.news = this }
+        this.relations.addAll(newRelations)
+    }
 }

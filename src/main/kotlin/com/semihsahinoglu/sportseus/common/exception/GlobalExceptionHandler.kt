@@ -27,6 +27,7 @@ import com.semihsahinoglu.sportseus.standing.exception.StandingConflictException
 import com.semihsahinoglu.sportseus.standing.exception.StandingNotFoundException
 import com.semihsahinoglu.sportseus.team.exception.LeagueTeamConflictException
 import com.semihsahinoglu.sportseus.team.exception.LeagueTeamNotFoundException
+import com.semihsahinoglu.sportseus.team.exception.TeamHasFixturesException
 import com.semihsahinoglu.sportseus.team.exception.TeamNotFoundException
 import com.semihsahinoglu.sportseus.team.exception.TeamStatisticsConflictException
 import com.semihsahinoglu.sportseus.team.exception.TeamStatisticsNotFoundException
@@ -532,6 +533,19 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         return ErrorResponse.buildErrorResponse(
             HttpStatus.NOT_FOUND,
             "News Not Found",
+            ex.message,
+            request.requestURI
+        )
+    }
+
+    @ExceptionHandler(TeamHasFixturesException::class)
+    fun TeamHasFixturesException(
+        ex: TeamHasFixturesException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiResponse<ErrorResponse>> {
+        return ErrorResponse.buildErrorResponse(
+            HttpStatus.NOT_FOUND,
+            "Team Has Fixtures",
             ex.message,
             request.requestURI
         )

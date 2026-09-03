@@ -35,4 +35,7 @@ interface FixtureRepository : JpaRepository<Fixture, UUID> {
 
     @EntityGraph(attributePaths = ["league", "homeTeam", "awayTeam", "venue"])
     fun findWithRelationsByExternalId(externalId: Long): Fixture?
+
+    @EntityGraph(attributePaths = ["league", "homeTeam", "awayTeam", "venue"])
+    fun existsByHomeTeamIdOrAwayTeamId(homeId: UUID, awayId: UUID): Boolean
 }

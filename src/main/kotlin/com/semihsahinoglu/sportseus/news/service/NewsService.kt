@@ -5,6 +5,7 @@ import com.semihsahinoglu.sportseus.news.dto.NewsListItemResponse
 import com.semihsahinoglu.sportseus.news.dto.NewsResponse
 import com.semihsahinoglu.sportseus.news.dto.NewsUpdateRequest
 import com.semihsahinoglu.sportseus.news.entity.NewsCategory
+import com.semihsahinoglu.sportseus.news.entity.NewsRelation
 import com.semihsahinoglu.sportseus.news.entity.NewsRelationType
 import com.semihsahinoglu.sportseus.news.entity.NewsStatus
 import com.semihsahinoglu.sportseus.news.exception.NewsNotFoundException
@@ -71,7 +72,10 @@ class NewsService(
         // relations replace (verilmişse)
         request.relations?.let { inputs ->
             news.relations.clear()
-            inputs.forEach { news.relations.add(newsMapper.toRelationEntity(news, it)) }
+            newsRepository.flush()                 // ← clear'ı DB'ye zorla (DELETE'ler önce çıkar)
+            val mapped = inputs.map { newsMapper.toRelationEntity(news, it) }
+            mapped.forEach { it.news = news }
+            news.relations.addAll(mapped)
         }
 
         // tags replace (verilmişse)
