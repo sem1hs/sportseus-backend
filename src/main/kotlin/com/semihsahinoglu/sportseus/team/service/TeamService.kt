@@ -1,6 +1,5 @@
 package com.semihsahinoglu.sportseus.team.service
 
-import com.semihsahinoglu.sportseus.fixture.repository.FixtureRepository
 import com.semihsahinoglu.sportseus.league.service.LeagueService
 import com.semihsahinoglu.sportseus.team.client.TeamApiClient
 import com.semihsahinoglu.sportseus.team.dto.TeamApiItem
@@ -13,6 +12,7 @@ import com.semihsahinoglu.sportseus.team.exception.TeamNotFoundException
 import com.semihsahinoglu.sportseus.team.mapper.TeamMapper
 import com.semihsahinoglu.sportseus.team.repository.TeamRepository
 import com.semihsahinoglu.sportseus.venue.service.VenueService
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -24,7 +24,6 @@ class TeamService(
     private val venueService: VenueService,
     private val leagueTeamService: LeagueTeamService,
     private val leagueService: LeagueService,
-    private val fixtureRepository: FixtureRepository,
     private val teamMapper: TeamMapper,
 ) {
     // ADMIN: ligin tüm takımlarını senkronla
@@ -50,12 +49,12 @@ class TeamService(
     @Transactional
     fun deleteTeam(id: UUID) {
         if (!teamRepository.existsById(id)) throw TeamNotFoundException("Takım bulunamadı: $id")
-        if (fixtureRepository.existsByHomeTeamIdOrAwayTeamId(
-                id,
-                id
-            )
-        ) throw TeamHasFixturesException("Bu takımın maçları var, önce onları silmelisin")
-        teamRepository.deleteById(id)
+        try {
+            teamRepository.deleteById(id)
+            teamRepository.flush()
+        } catch (e: DataIntegrityViolationException) {
+            throw TeamHasFixturesException("Bu takıma bağlı kayıtlar (maç, puan durumu vb.) var; önce onları silmelisin")
+        }
     }
 
     // PUBLIC: tek takım (venue gömülü)

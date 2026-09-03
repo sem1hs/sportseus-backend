@@ -544,7 +544,7 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         request: HttpServletRequest
     ): ResponseEntity<ApiResponse<ErrorResponse>> {
         return ErrorResponse.buildErrorResponse(
-            HttpStatus.NOT_FOUND,
+            HttpStatus.BAD_REQUEST,
             "Team Has Fixtures",
             ex.message,
             request.requestURI
