@@ -23,3 +23,11 @@ spring:
 logging:
   level:
     org.hibernate.SQL: DEBUG
+
+auth:
+  refresh-cookie:
+    name: ${REFRESH_COOKIE_NAME}
+    path: ${REFRESH_COOKIE_PATH}
+    same-site: ${REFRESH_COOKIE_SAME_SITE}
+    secure: ${REFRESH_COOKIE_SECURE}          # prod'da true
+    max-age-days: ${REFRESH_COOKIE_MAX_AGE_DAYS}

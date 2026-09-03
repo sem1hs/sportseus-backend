@@ -1,6 +1,7 @@
 package com.semihsahinoglu.sportseus.security.config
 
 import com.semihsahinoglu.sportseus.security.entity.JwtProperties
+import com.semihsahinoglu.sportseus.security.entity.RefreshCookieProperties
 import com.semihsahinoglu.sportseus.security.exception.CustomAccessDeniedHandler
 import com.semihsahinoglu.sportseus.security.exception.JwtAuthenticationEntryPoint
 import com.semihsahinoglu.sportseus.security.filter.JwtAuthFilter
@@ -25,7 +26,7 @@ import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
-@EnableConfigurationProperties(JwtProperties::class)
+@EnableConfigurationProperties(JwtProperties::class, RefreshCookieProperties::class)
 @EnableWebSecurity
 @EnableMethodSecurity
 class SecurityConfig(
