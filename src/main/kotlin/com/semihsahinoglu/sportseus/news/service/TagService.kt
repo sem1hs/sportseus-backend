@@ -1,5 +1,6 @@
 package com.semihsahinoglu.sportseus.news.service
 
+import com.semihsahinoglu.sportseus.news.dto.TagResponse
 import com.semihsahinoglu.sportseus.news.entity.Tag
 import com.semihsahinoglu.sportseus.news.repository.TagRepository
 import org.springframework.stereotype.Service
@@ -26,4 +27,7 @@ class TagService(
             .replace(Regex("[^a-z0-9\\s-]"), "")
             .trim()
             .replace(Regex("\\s+"), "-")
+
+    fun getLatestTags(): List<TagResponse> =
+        tagRepository.findTop5ByOrderByCreatedDateDesc().map { TagResponse(it.id!!, it.name, it.slug) }
 }

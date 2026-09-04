@@ -61,6 +61,7 @@ class SecurityConfig(
                 it.requestMatchers(HttpMethod.GET, "/standings/**").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/squads/**").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/news/**").permitAll()
+                it.requestMatchers(HttpMethod.GET, "/tags/**").permitAll()
                 it.requestMatchers("/admin/**").hasRole("ADMIN")
                 it.anyRequest().authenticated()
             }

@@ -11,4 +11,6 @@ interface TagRepository : JpaRepository<Tag, UUID> {
     fun findBySlug(slug: String): Tag?
 
     fun existsBySlug(slug: String): Boolean
+
+    fun findTop5ByOrderByCreatedDateDesc(): List<Tag>
 }

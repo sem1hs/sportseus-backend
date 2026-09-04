@@ -48,7 +48,7 @@ class PlayerFacade(
             val teamExtId = item.team!!.id!!
             val leagueExtId = item.league!!.id!!
 
-            val team = teamService.findByExternalId(teamExtId.toInt())
+            val team = teamService.findByExternalIdOptional(teamExtId.toInt())
             val league = leagueService.findByExternalIdAndSeasonEntity(leagueExtId.toInt(), season)
 
             if (team == null || league == null) return@mapNotNull null
