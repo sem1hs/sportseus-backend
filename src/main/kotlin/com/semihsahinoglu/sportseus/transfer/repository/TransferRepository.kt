@@ -38,4 +38,28 @@ interface TransferRepository : JpaRepository<Transfer, UUID> {
 
     @EntityGraph(attributePaths = ["player", "teamIn"])
     fun findAllByTeamOutExternalIdOrderByDateDesc(teamOutExternalId: Int): List<Transfer>
+
+    // bir oyuncunun belirli sezon transferleri
+    @EntityGraph(attributePaths = ["player", "teamIn", "teamOut"])
+    fun findAllByPlayerExternalIdAndSeasonOrderByDateDesc(
+        playerExternalId: Long,
+        season: Int,
+    ): List<Transfer>
+
+    // bir takımın belirli sezon hareketleri (in VEYA out)
+    @EntityGraph(attributePaths = ["player", "teamIn", "teamOut"])
+    @Query("""
+    SELECT t FROM Transfer t
+    WHERE t.season = :season
+      AND (t.teamIn.externalId = :teamExternalId OR t.teamOut.externalId = :teamExternalId)
+    ORDER BY t.date DESC
+""")
+    fun findAllByTeamExternalIdAndSeason(
+        @Param("teamExternalId") teamExternalId: Int,
+        @Param("season") season: Int,
+    ): List<Transfer>
+
+    // bir sezonun tüm transferleri (opsiyonel — genel liste)
+    @EntityGraph(attributePaths = ["player", "teamIn", "teamOut"])
+    fun findAllBySeasonOrderByDateDesc(season: Int): List<Transfer>
 }

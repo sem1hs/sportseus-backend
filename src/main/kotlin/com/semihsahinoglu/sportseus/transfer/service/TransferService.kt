@@ -135,4 +135,22 @@ class TransferService(
     fun getByTeamExternalId(teamExternalId: Int): List<TransferResponse> =
         transferRepository.findAllByTeamExternalId(teamExternalId)
             .map(transferMapper::toResponse)
+
+    // PUBLIC: oyuncunun sezon transferleri
+    @Transactional(readOnly = true)
+    fun getByPlayerAndSeason(playerExternalId: Long, season: Int): List<TransferResponse> =
+        transferRepository.findAllByPlayerExternalIdAndSeasonOrderByDateDesc(playerExternalId, season)
+            .map(transferMapper::toResponse)
+
+    // PUBLIC: takımın sezon hareketleri (gelen + giden)
+    @Transactional(readOnly = true)
+    fun getByTeamAndSeason(teamExternalId: Int, season: Int): List<TransferResponse> =
+        transferRepository.findAllByTeamExternalIdAndSeason(teamExternalId, season)
+            .map(transferMapper::toResponse)
+
+    // PUBLIC: bir sezonun tüm transferleri
+    @Transactional(readOnly = true)
+    fun getBySeason(season: Int): List<TransferResponse> =
+        transferRepository.findAllBySeasonOrderByDateDesc(season)
+            .map(transferMapper::toResponse)
 }

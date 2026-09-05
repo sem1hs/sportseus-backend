@@ -176,6 +176,30 @@ class CoachService(
             }
     }
 
+    // PUBLIC: bir takımda görev yapmış tüm coach'lar (career'ı o takımı içerenler)
+    @Transactional(readOnly = true)
+    fun getByTeamExternalIdAndSeason(teamExternalId: Int, season: Int): List<CoachResponse> {
+        // sezon tarih aralığı: X yılı 1 Haziran → X+1 yılı 31 Mayıs
+        val seasonStart = LocalDate.of(season, 6, 1)
+        val seasonEnd = LocalDate.of(season + 1, 5, 31)
+
+        val careers = coachCareerRepository.findCareersByTeamAndSeasonRange(teamExternalId, seasonStart, seasonEnd)
+
+        return careers
+            .groupBy { it.coach }
+            .map { (coach, coachCareers) ->
+                coach to coachCareers.sortedByDescending { it.startDate }
+            }
+            .sortedByDescending { (_, coachCareers) ->
+                coachCareers
+                    .filter { it.teamExternalId == teamExternalId }
+                    .maxOf { it.startDate }
+            }
+            .map { (coach, coachCareers) ->
+                coachMapper.toResponse(coach, coachCareers)
+            }
+    }
+
     // ADMIN: hard delete (career cascade DB'de)
     @Transactional
     fun deleteByExternalId(id: UUID) {

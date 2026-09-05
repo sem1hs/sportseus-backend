@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -29,4 +30,31 @@ class TransferController(
         val response = ApiResponse.success(transfers)
         return ResponseEntity.ok(response)
     }
+
+    // PUBLIC: oyuncunun transferleri, season
+    @GetMapping("/players/{playerExternalId}/season/{season}")
+    fun getByPlayerAndSeason(
+        @PathVariable playerExternalId: Long,
+        @PathVariable season: Int,
+    ): ResponseEntity<ApiResponse<List<TransferResponse>>> {
+        val transfers = transferService.getByPlayerAndSeason(playerExternalId, season)
+        val response = ApiResponse.success(transfers)
+        return ResponseEntity.ok(response)
+    }
+
+    // PUBLIC: takımın hareketleri, season
+    @GetMapping("/teams/{teamExternalId}/season/{season}")
+    fun getByTeamAndSeason(
+        @PathVariable teamExternalId: Int,
+        @PathVariable season: Int,
+    ): ResponseEntity<ApiResponse<List<TransferResponse>>> {
+        val transfers = transferService.getByTeamAndSeason(teamExternalId, season)
+        val response = ApiResponse.success(transfers)
+        return ResponseEntity.ok(response)
+    }
+
+    // PUBLIC: bir sezonun tüm transferleri
+    @GetMapping("/seasons/{season}")
+    fun getBySeason(@PathVariable season: Int): ResponseEntity<ApiResponse<List<TransferResponse>>> =
+        ResponseEntity.ok(ApiResponse.success(transferService.getBySeason(season)))
 }

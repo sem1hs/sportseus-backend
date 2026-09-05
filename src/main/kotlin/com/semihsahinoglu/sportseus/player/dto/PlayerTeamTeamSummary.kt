@@ -7,4 +7,5 @@ data class PlayerTeamTeamSummary(
     val externalId: Long,
     val name: String,
     val logoUrl: String?,
+    val national:Boolean?,
 )

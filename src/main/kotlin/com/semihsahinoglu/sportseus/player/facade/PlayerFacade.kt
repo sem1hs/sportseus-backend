@@ -71,19 +71,18 @@ class PlayerFacade(
             entry.seasons.map { season -> teamId to season }
         }
 
-        // KATI FK — toplu: tüm takımlar var mı?
-        val teamMap = HashMap<Long, Team>()
-        val missingTeams = ArrayList<Long>()
-        pairs.map { it.first }.toSet().forEach { id ->
-            teamService.findByExternalId(id.toInt())?.let { teamMap[id] = it } ?: missingTeams.add(id)
-        }
-
-        if (missingTeams.isNotEmpty())
-            throw MissingReferencesException(missingTeams, emptyList())
-
-        // her (team, season) → iskelet üyelik (number/position YOK; squad doldurur)
         pairs.forEach { (teamExternalId, season) ->
-            playerTeamService.ensureMembership(player, teamMap.getValue(teamExternalId), season)
+            val team = teamService.findByExternalIdOptional(teamExternalId.toInt())
+            if (team == null) {
+                log.warn(
+                    "Üyelik atlandı (takım DB'de yok): player={} team={} season={}",
+                    playerExternalId,
+                    teamExternalId,
+                    season
+                )
+                return@forEach
+            }
+            playerTeamService.ensureMembership(player, team, season)
         }
 
         return playerTeamService.getPlayerTeamByPlayerExternalId(playerExternalId)

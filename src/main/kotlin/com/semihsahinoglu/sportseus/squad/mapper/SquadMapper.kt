@@ -30,9 +30,10 @@ class SquadMapper {
             id = pt.player.id!!,
             externalId = pt.player.externalId,
             name = pt.player.name,
-            age = pt.player.age,
+            birthDate = pt.player.birthDate,
             photo = pt.player.photo,
             number = pt.number,
             position = pt.position,
+            nationality = pt.player.nationality,
         )
 }

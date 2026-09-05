@@ -41,6 +41,9 @@ class Transfer(
     @Column(name = "transfer_date", nullable = false)
     var date: LocalDate,
 
+    @Column(nullable = false)
+    var season: Int = computeSeason(date),
+
     @Column(name = "raw_type", nullable = false, length = 100)
     var rawType: String,
 
@@ -68,7 +71,10 @@ class Transfer(
     ) {
         teamIn?.let { this.teamIn = it }
         teamOut?.let { this.teamOut = it }
-        date?.let { this.date = it }
+        date?.let {
+            this.date = it
+            this.season = computeSeason(it)
+        }
         rawType?.let { this.rawType = it }
         transferType?.let { this.transferType = it }
 
@@ -78,5 +84,11 @@ class Transfer(
         }
 
         this.manuallyEdited = true
+    }
+
+    companion object {
+        // 1 Haziran kuralı: ay >= 6 ise o yıl, değilse bir önceki yıl
+        fun computeSeason(date: LocalDate): Int =
+            if (date.monthValue >= 6) date.year else date.year - 1
     }
 }

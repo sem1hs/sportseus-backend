@@ -31,6 +31,7 @@ class PlayerTeamMapper {
                 externalId = pt.team.externalId.toLong(),
                 name = pt.team.name,
                 logoUrl = pt.team.logoUrl,
+                national = pt.team.national,
             ),
         )
 }

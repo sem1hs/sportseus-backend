@@ -31,4 +31,15 @@ class CoachController(
         val response = ApiResponse.success(coach)
         return ResponseEntity.ok(response)
     }
+
+    // PUBLIC: bir takımda görev yapmış coach'lar
+    @GetMapping("/teams/{teamExternalId}/season/{season}")
+    fun getByTeamAndSeason(
+        @PathVariable teamExternalId: Int,
+        @PathVariable season: Int
+    ): ResponseEntity<ApiResponse<List<CoachResponse>>> {
+        val coach = coachService.getByTeamExternalIdAndSeason(teamExternalId, season)
+        val response = ApiResponse.success(coach)
+        return ResponseEntity.ok(response)
+    }
 }

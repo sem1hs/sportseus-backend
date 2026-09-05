@@ -41,4 +41,20 @@ interface CoachCareerRepository : JpaRepository<CoachCareer, UUID> {
 
     @EntityGraph(attributePaths = ["coach"])
     fun findByIdAndCoachId(id: UUID, coachId: UUID): CoachCareer?
+
+    @Query("""
+    SELECT c FROM CoachCareer c
+    JOIN FETCH c.coach
+    WHERE c.coach IN (
+        SELECT DISTINCT cc.coach FROM CoachCareer cc
+        WHERE cc.teamExternalId = :teamExternalId
+          AND cc.startDate <= :seasonEnd
+          AND (cc.endDate >= :seasonStart OR cc.endDate IS NULL)
+    )
+""")
+    fun findCareersByTeamAndSeasonRange(
+        @Param("teamExternalId") teamExternalId: Int,
+        @Param("seasonStart") seasonStart: LocalDate,
+        @Param("seasonEnd") seasonEnd: LocalDate,
+    ): List<CoachCareer>
 }
